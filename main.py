@@ -1,13 +1,15 @@
-from fastapi import *
+from fastapi import FastAPI, WebSocket, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-# from fastapi import websocket
-from typing import List
+from auth import router as auth_router
+from note import router as note_router
 
 app = FastAPI()
 
-connections : List[WebSocket] = []
+app.include_router(auth_router)
+app.include_router(note_router)
 
+connections : list[WebSocket] = []
 @app.websocket("/ws/note/{note_id}")
 async def websocket_endpoint(websocket:WebSocket, note_id:int):
     await websocket.accept()
