@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi import FastAPI, Request, Depends
-from api_class import registRequest, loginRequest, authResponse
-from auth_func import User
+from api_class.api_class import registRequest, loginRequest, authResponse
+from auth.auth_func import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

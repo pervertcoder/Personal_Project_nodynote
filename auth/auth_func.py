@@ -1,7 +1,7 @@
 import jwt
 from datetime import datetime, timedelta, timezone
 from env_settings.env import ALGORITHM, SECRET_KEY
-from db_controller import write_data, get_member_data
+from db_control.db_controller import write_data, get_member_data
 
 class User:
 	def __init__(self, user_name):

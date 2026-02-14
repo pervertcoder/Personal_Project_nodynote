@@ -2,7 +2,7 @@ from fastapi import FastAPI, WebSocket, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from auth import router as auth_router
-from note import router as note_router
+from note.note import router as note_router
 
 app = FastAPI()
 

@@ -1,4 +1,4 @@
-from db_pool import get_db_connect
+from db_control.db_pool import get_db_connect
 
 # 寫入會員資料
 def write_data(user_name, use_email, user_password):
