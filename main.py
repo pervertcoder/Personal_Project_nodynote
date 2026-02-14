@@ -1,7 +1,7 @@
 from fastapi import FastAPI, WebSocket, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from auth import router as auth_router
+from auth.auth import router as auth_router
 from note.note import router as note_router
 
 app = FastAPI()
@@ -28,3 +28,7 @@ app.mount("/statics", StaticFiles(directory="statics"))
 @app.get("/")
 async def index(request: Request):
     return FileResponse("./statics/index.html")
+
+@app.get("/welcome", include_in_schema=False)
+async def welcome_page(request: Request):
+	return FileResponse("./statics/welcome_page.html", media_type="text/html")
