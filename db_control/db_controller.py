@@ -12,11 +12,11 @@ def write_data(user_name, use_email, user_password):
 		print("data inserted successfully")
 		
 # 資料對比
-def get_member_data():
+def get_member_data(email):
     conn = get_db_connect()
     mycursor = conn.cursor()
-    sql = "select * from member"
-    mycursor.execute(sql)
+    sql = "select * from member where email = %s"
+    mycursor.execute(sql, (email,))
     result = [x for x in mycursor]
     mycursor.close()
     return result

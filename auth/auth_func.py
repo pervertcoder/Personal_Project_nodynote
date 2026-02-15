@@ -4,8 +4,9 @@ from env_settings.env import ALGORITHM, SECRET_KEY
 from db_control.db_controller import write_data, get_member_data
 
 class User:
-	def __init__(self, user_name):
+	def __init__(self, user_name, email):
 		self.user_name = user_name
+		self.email = email
 		
     # 寫入資料
 	def write_user_data(self, user_name, user_email, user_password):
@@ -13,7 +14,7 @@ class User:
 		
     # 資料對比
 	def get_user_data(self):
-		result = get_member_data()
+		result = get_member_data(self.email)
 		return result
 	
 # 會員驗證(有時間再做)

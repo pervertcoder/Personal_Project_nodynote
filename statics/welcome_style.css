@@ -63,3 +63,12 @@ body {
   display: flex;
   justify-content: center;
 }
+
+.error {
+  width: 100%;
+  padding: 10px;
+}
+
+.state__off {
+  display: none;
+}

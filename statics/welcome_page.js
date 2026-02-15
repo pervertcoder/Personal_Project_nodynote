@@ -4,9 +4,14 @@ const loginBtn = document.getElementById("loginBtn");
 const registBtn = document.getElementById("registBtn");
 
 registBtn.addEventListener("click", async () => {
-  const username = document.getElementById("name_regist").value;
-  const email = document.getElementById("email_regist").value;
-  const password = document.getElementById("password_regist").value;
+  const username = document.getElementById("name_regist").value.trim();
+  const email = document.getElementById("email_regist").value.trim();
+  const password = document.getElementById("password_regist").value.trim();
+
+  if (!username || !email || !password) {
+    alert("請輸入姓名、信箱、密碼");
+    return;
+  }
 
   const payload = {
     user_name: username,
