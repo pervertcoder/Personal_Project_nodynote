@@ -25,4 +25,10 @@ registBtn.addEventListener("click", async () => {
 
   const response = await request.json();
   console.log(response);
+
+  const url2 = "";
+  const request2 = await fetch(url, {});
+
+  const response2 = await request2.json();
+  console.log(response2);
 });

@@ -13,7 +13,7 @@ class User:
 		
     # 資料對比
 	def get_user_data(self):
-		result = get_member_data
+		result = get_member_data()
 		return result
 	
 # 會員驗證(有時間再做)
