@@ -11,3 +11,11 @@ class loginRequest(BaseModel):
 
 class authResponse(BaseModel):
     ok : bool
+
+class loginResponse(BaseModel):
+    ok : bool
+    token : str
+
+class errorResponse(BaseModel):
+    error : bool
+    message : str

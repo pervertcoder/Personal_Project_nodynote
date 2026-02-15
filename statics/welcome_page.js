@@ -25,10 +25,27 @@ registBtn.addEventListener("click", async () => {
 
   const response = await request.json();
   console.log(response);
+});
 
-  const url2 = "";
-  const request2 = await fetch(url, {});
+loginBtn.addEventListener("click", async () => {
+  const email = document.getElementById("email_login").value;
+  const password = document.getElementById("password_login").value;
+  const payload = {
+    email: email,
+    password: password,
+  };
 
-  const response2 = await request2.json();
-  console.log(response2);
+  const url = "/api/auth/authen";
+  const request = await fetch(url, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const response = await request.json();
+  console.log(response);
+
+  localStorage.setItem("JWTtoken", response.token);
 });

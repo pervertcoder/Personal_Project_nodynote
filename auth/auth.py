@@ -1,20 +1,26 @@
 from fastapi import APIRouter
 from fastapi import FastAPI, Request, Depends
-from api_class.api_class import registRequest, loginRequest, authResponse
-from auth.auth_func import User
+from api_class.api_class import registRequest, loginRequest, authResponse, loginResponse, errorResponse
+from auth.auth_func import User, create_jwt, check_format
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-@router.post("/regist", response_model=authResponse)
+@router.post("/regist", response_model=authResponse, responses={400:{'model' : errorResponse, 'description' : '註冊失敗，重複的 Email 或其他原因'}, 500: {'model' : errorResponse, 'description' : '伺服器內部錯誤'}})
 def register(request:registRequest):
+    message = "帳號重複"
     user_name = request.user_name
     user = User(user_name)
-    user.write_user_data(user_name=user_name, user_email=request.email, user_password=request.password)
-    return authResponse(ok=True)
+    check_data = user.get_user_data()
+    if check_data == []:
+        user.write_user_data(user_name=user_name, user_email=request.email, user_password=request.password)
+        return authResponse(ok=True)
+    else:
+        return errorResponse(error=True, message=message)
 
-@router.put("/auth")
-def login():
-    pass
+@router.put("/authen", response_model=loginResponse)
+def login(request:loginRequest):
+    token = create_jwt(request)
+    return loginResponse(ok=True, token=token)
 
 @router.get("/login")
 def get_user_data():
