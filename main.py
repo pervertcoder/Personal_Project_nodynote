@@ -27,8 +27,9 @@ app.mount("/statics", StaticFiles(directory="statics"))
 # Static Pages
 @app.get("/")
 async def index(request: Request):
-    return FileResponse("./statics/index.html")
+    return FileResponse("./statics/welcome_page.html", media_type="text/html")
 
-@app.get("/welcome", include_in_schema=False)
+@app.get("/main", include_in_schema=False)
 async def welcome_page(request: Request):
-	return FileResponse("./statics/welcome_page.html", media_type="text/html")
+    return FileResponse("./statics/index.html")
+	

@@ -33,8 +33,12 @@ registBtn.addEventListener("click", async () => {
 });
 
 loginBtn.addEventListener("click", async () => {
-  const email = document.getElementById("email_login").value;
-  const password = document.getElementById("password_login").value;
+  const email = document.getElementById("email_login").value.trim();
+  const password = document.getElementById("password_login").value.trim();
+  if (!email || !password) {
+    alert("請輸入信箱、密碼");
+    return;
+  }
   const payload = {
     email: email,
     password: password,
@@ -52,5 +56,10 @@ loginBtn.addEventListener("click", async () => {
   const response = await request.json();
   console.log(response);
 
-  localStorage.setItem("JWTtoken", response.token);
+  if (response.token) {
+    localStorage.setItem("JWTtoken", response.token);
+    window.location.href = "/main";
+  } else {
+    console.log("帳號密碼錯誤");
+  }
 });
