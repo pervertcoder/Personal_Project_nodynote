@@ -32,4 +32,11 @@ async def index(request: Request):
 @app.get("/dashboard", include_in_schema=False)
 async def dashboard_page(request: Request):
     return FileResponse("./statics/index.html")
+
+@app.get("/note", include_in_schema=False)
+async def note_page(request: Request):
+    return FileResponse("./statics/note_page.html")
 	
+
+# 使用者API設計
+# dashboard應該要在使用者名稱底下 網址要像/{username}/dashboard /{username}/{note ID}之類的

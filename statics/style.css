@@ -1,8 +1,46 @@
 p {
   display: inline-block;
+  font-size: 30px;
 }
-.topbar {
-  width: 1920px;
+
+.right {
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
+}
+
+.topbar {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  cursor: pointer;
+}
+
+#logout {
+  margin-left: 10px;
+}
+
+.middlebar {
+  max-width: 1200px;
+  padding: 10px;
+  margin: 0 auto;
+}
+
+.note {
+  max-width: 1200px;
+  height: 100vh;
+  background-color: gainsboro;
+  margin: 10px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+}
+
+.nodata {
+  color: black;
 }

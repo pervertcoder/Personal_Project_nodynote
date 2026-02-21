@@ -21,16 +21,3 @@ const checkState = async function () {
   }
 };
 checkState();
-
-// 新建筆記
-const newNote = document.getElementById("newnote");
-newNote.addEventListener("click", () => {
-  window.location.href = "/note";
-});
-
-// 登出
-const logout = document.getElementById("logout");
-logout.addEventListener("click", () => {
-  localStorage.removeItem("JWTtoken");
-  window.location.reload();
-});
