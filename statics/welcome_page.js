@@ -58,8 +58,30 @@ loginBtn.addEventListener("click", async () => {
 
   if (response.token) {
     localStorage.setItem("JWTtoken", response.token);
-    window.location.href = "/main";
+    window.location.href = "/dashboard";
   } else {
     console.log("帳號密碼錯誤");
   }
 });
+
+const token = localStorage.getItem("JWTtoken");
+const checkState = async function () {
+  const url = "/api/auth/login";
+  const request = await fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const response = await request.json();
+  console.log(response);
+
+  if (response.ok) {
+    window.location.href = "/dashboard";
+  } else {
+    console.log("請登入");
+  }
+};
+
+checkState();

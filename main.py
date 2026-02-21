@@ -29,7 +29,7 @@ app.mount("/statics", StaticFiles(directory="statics"))
 async def index(request: Request):
     return FileResponse("./statics/welcome_page.html", media_type="text/html")
 
-@app.get("/main", include_in_schema=False)
-async def welcome_page(request: Request):
+@app.get("/dashboard", include_in_schema=False)
+async def dashboard_page(request: Request):
     return FileResponse("./statics/index.html")
 	

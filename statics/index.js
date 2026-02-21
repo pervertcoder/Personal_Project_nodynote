@@ -12,6 +12,17 @@ const checkState = async function () {
 
   const response = await request.json();
   console.log(response);
-};
 
+  if (response.ok) {
+    console.log("登入成功");
+  } else {
+    window.location.href = "/";
+  }
+};
 checkState();
+
+const logout = document.getElementById("logout");
+logout.addEventListener("click", () => {
+  localStorage.removeItem("JWTtoken");
+  window.location.reload();
+});
