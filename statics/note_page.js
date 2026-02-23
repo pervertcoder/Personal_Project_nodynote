@@ -2,8 +2,9 @@
 
 // JWT驗證
 const token = localStorage.getItem("JWTtoken");
+const userId = window.location.pathname.slice(6);
 const checkState = async function () {
-  const url = "/api/auth/login";
+  const url = `/api/auth/login/${userId}`;
   const request = await fetch(url, {
     method: "GET",
     headers: {

@@ -2,8 +2,10 @@
 
 // JWT驗證
 const token = localStorage.getItem("JWTtoken");
+let userName = document.querySelector(".username");
+const userId = window.location.pathname.slice(11);
 const checkState = async function () {
-  const url = "/api/auth/login";
+  const url = `/api/auth/login/${userId}`;
   const request = await fetch(url, {
     method: "GET",
     headers: {
@@ -15,6 +17,7 @@ const checkState = async function () {
   console.log(response);
 
   if (response.ok) {
+    userName.textContent = response.user_name;
     console.log("登入成功");
   } else {
     window.location.href = "/";
@@ -25,7 +28,7 @@ checkState();
 // 新建筆記
 const newNote = document.getElementById("newnote");
 newNote.addEventListener("click", () => {
-  window.location.href = "/note";
+  window.location.href = `/note/${userId}`;
 });
 
 // 登出

@@ -19,4 +19,22 @@ def get_member_data(email):
     mycursor.execute(sql, (email,))
     result = [x for x in mycursor]
     mycursor.close()
+    conn.close()
     return result
+
+# 使用者資料
+def get_member_name(user_id):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select * from member where id = %s"
+    mycursor.execute(sql, (user_id,))
+    result = [x for x in mycursor]
+    mycursor.close()
+    conn.close()
+    return result
+
+# note
+# id, title, note_content, owner_id
+
+# note_permissions
+# 

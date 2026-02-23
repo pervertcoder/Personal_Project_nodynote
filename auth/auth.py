@@ -1,8 +1,9 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi import FastAPI, Request, Depends
-from api_class.api_class import registRequest, loginRequest, authResponse, loginResponse, errorResponse
+from api_class.api_class import registRequest, loginRequest, authResponse, loginResponse, errorResponse, loginData
 from auth.auth_func import User, create_jwt, check_format
+from db_control.db_controller import get_member_name
 from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import jwt
@@ -31,9 +32,10 @@ def login(request:loginRequest):
     email = request.email
     user = User(email)
     check_data = user.get_user_data()
+    user_id = check_data[0][0]
     if check_data != [] and check_data[0][3] == request.password:
         token = create_jwt({'id' : check_data[0][0], 'email' : check_data[0][2]})
-        return loginResponse(ok=True, token=token)
+        return loginResponse(ok=True, token=token, user_id=user_id)
     else:
         return JSONResponse(status_code=400, content={
             'error' : True,
@@ -41,12 +43,16 @@ def login(request:loginRequest):
         })
     
 
-@router.get("/login", response_model=authResponse)
-def get_user_data(credentials:HTTPAuthorizationCredentials=Depends(security)):
+@router.get("/login/{user_id}", response_model=authResponse)
+def get_user_data(user_id:int, credentials:HTTPAuthorizationCredentials=Depends(security)):
     try:
+        member_data = get_member_name(user_id)
+        user_id_res = member_data[0][0]
+        user_name = member_data[0][1]
+        user_email = member_data[0][2]
         token = credentials.credentials.replace('Bearer ', '')
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return  authResponse(ok=True)
+        return  authResponse(ok=True,user_id=user_id_res , user_name=user_name, user_email=user_email)
     except jwt.ExpiredSignatureError:
         return JSONResponse(status_code=401, content={
 			'error': True,

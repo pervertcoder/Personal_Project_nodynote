@@ -16,6 +16,7 @@ class User:
 		result = get_member_data(self.email)
 		return result
 	
+	
 # 會員驗證(有時間再做)
 def create_jwt(data:dict)->str:
 	payload = data.copy()
