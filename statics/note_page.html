@@ -3,10 +3,24 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/statics/favicon.ico" />
     <link rel="stylesheet" href="/statics/style_reset.css" />
     <link rel="stylesheet" href="/statics/note_page.css" />
     <script src="/statics/note_page.js" defer></script>
     <title>NodyNote</title>
   </head>
-  <body></body>
+  <body>
+    <div class="topbar">
+      <div class="nody"><p class="nodynote">NodyNote</p></div>
+    </div>
+    <label for="note">記下你的筆記</label>
+    <div class="titleName">
+      <p class="noteName">筆記名字</p>
+      <input type="text" id="note_name" />
+    </div>
+    <textarea name="note" id="note" rows="5" cols="33"></textarea>
+    <div class="function">
+      <button type="button" id="save">儲存</button>
+    </div>
+  </body>
 </html>

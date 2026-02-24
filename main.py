@@ -29,11 +29,11 @@ app.mount("/statics", StaticFiles(directory="statics"))
 async def index(request: Request):
     return FileResponse("./statics/welcome_page.html", media_type="text/html")
 
-@app.get("/dashboard/{user_id}", include_in_schema=False)
-async def dashboard_page(request: Request, user_id:int):
+@app.get("/dashboard", include_in_schema=False)
+async def dashboard_page(request: Request):
     return FileResponse("./statics/index.html")
 
-@app.get("/note/{user_id}", include_in_schema=False)
+@app.get("/note/{note_id}", include_in_schema=False)
 async def note_page(request: Request):
     return FileResponse("./statics/note_page.html")
 	

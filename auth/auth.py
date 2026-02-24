@@ -43,16 +43,21 @@ def login(request:loginRequest):
         })
     
 
-@router.get("/login/{user_id}", response_model=authResponse)
-def get_user_data(user_id:int, credentials:HTTPAuthorizationCredentials=Depends(security)):
+@router.get("/login", response_model=authResponse, responses={400:{'model' : errorResponse, 'description' : 'Email或密碼不正確'}})
+def get_user_data(credentials:HTTPAuthorizationCredentials=Depends(security)):
     try:
-        member_data = get_member_name(user_id)
-        user_id_res = member_data[0][0]
-        user_name = member_data[0][1]
-        user_email = member_data[0][2]
         token = credentials.credentials.replace('Bearer ', '')
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return  authResponse(ok=True,user_id=user_id_res , user_name=user_name, user_email=user_email)
+        user_email = payload["email"]
+        user = User(user_email)
+        check_data = user.get_user_data()
+        if check_data:
+            return  authResponse(ok=True, member_data=check_data)
+        else:
+            return JSONResponse(status_code=401, content={
+                "error" : True,
+                "message" : "帳號或密碼發生錯誤"
+            })
     except jwt.ExpiredSignatureError:
         return JSONResponse(status_code=401, content={
 			'error': True,

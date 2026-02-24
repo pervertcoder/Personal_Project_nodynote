@@ -14,9 +14,7 @@ class loginData(BaseModel):
 
 class authResponse(BaseModel):
     ok : bool
-    user_id : int
-    user_name : str
-    user_email : str
+    member_data : list
 
 class loginResponse(BaseModel):
     ok : bool
@@ -26,3 +24,20 @@ class loginResponse(BaseModel):
 class errorResponse(BaseModel):
     error : bool
     message : str
+
+class note_addResponse(BaseModel):
+    note_id : int
+
+class note_data_request(BaseModel):
+    title : str
+    content : str
+
+class note_render_request(BaseModel):
+    note : list
+
+class note_update_request(BaseModel):
+    name : str
+    content : str
+
+class note_update_response(BaseModel):
+    ok : bool
