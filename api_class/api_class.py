@@ -41,3 +41,13 @@ class note_update_request(BaseModel):
 
 class note_update_response(BaseModel):
     ok : bool
+
+class note_render_data_detail(BaseModel):
+    note_id : int
+    title : str
+
+class note_render_data_response(BaseModel):
+    data : list
+
+class note_delete(BaseModel):
+    ok : bool

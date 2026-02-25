@@ -6,7 +6,7 @@ let note = document.getElementById("note");
 const token = localStorage.getItem("JWTtoken");
 const id = window.location.pathname.slice(6);
 const checkState = async function () {
-  const url = `/api/note/note_render/${id}`;
+  const url = `/api/note/note_content_render/${id}`;
   const request = await fetch(url, {
     method: "GET",
     headers: {
@@ -18,8 +18,8 @@ const checkState = async function () {
   console.log(response);
 
   if (response.note) {
-    note_name.value = response.note[0][0];
-    note.value = response.note[0][1];
+    note_name.value = response.note[0];
+    note.value = response.note[1];
     console.log("登入成功");
   } else {
     window.location.href = "/dashboard";

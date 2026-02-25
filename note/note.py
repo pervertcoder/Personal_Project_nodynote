@@ -5,8 +5,8 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from auth.auth_func import User
 import jwt
 from env_settings.env import ALGORITHM, SECRET_KEY
-from db_control.db_controller import put_note_name, check_permission, update_note
-from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response
+from db_control.db_controller import put_note_name, check_permission, update_note, render_note_data, delete_note, check_role, check_shared_user, add_permission
+from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response, note_render_data_response, note_delete
 
 router = APIRouter(prefix="/api/note", tags=["note"])
 security = HTTPBearer()
@@ -40,8 +40,8 @@ def note_add (request:note_data_request, credentials:HTTPAuthorizationCredential
         })
     
 
-@router.get("/note_render/{note_id}", response_model=note_render_request)
-def note_add (note_id, credentials:HTTPAuthorizationCredentials=Depends(security)):
+@router.get("/note_content_render/{note_id}", response_model=note_render_request)
+def note_content_render (note_id, credentials:HTTPAuthorizationCredentials=Depends(security)):
     try:
         token = credentials.credentials.replace('Bearer ', '')
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -50,12 +50,12 @@ def note_add (note_id, credentials:HTTPAuthorizationCredentials=Depends(security
         check_data = user.get_user_data()
         user_id = check_data[0][0]
         note_data = check_permission(note_id, user_id)
-        if check_data and note_data:
+        if note_data[2] == "owner" or note_data[2] == "editor":
             return note_render_request(note=note_data)
         else:
-            return JSONResponse(status_code=401, content={
+            return JSONResponse(status_code=403, content={
                 "error" : True,
-                "message" : "帳號或密碼發生錯誤"
+                "message" : "權限不足"
             })
     except jwt.ExpiredSignatureError:
         return JSONResponse(status_code=401, content={
@@ -78,13 +78,107 @@ def note_update (note_id, request:note_update_request, credentials:HTTPAuthoriza
         check_data = user.get_user_data()
         user_id = check_data[0][0]
         if check_data:
-            update_note(request.name, request.content, note_id)
+            rows = update_note(request.name, request.content, note_id, user_id)
+            if rows == 0 :
+                return JSONResponse(status_code=403, content={
+                "error" : True,
+                "message" : "權限不足"
+                })
             return note_update_response(ok=True)
         else:
             return JSONResponse(status_code=401, content={
                 "error" : True,
                 "message" : "帳號或密碼發生錯誤"
             })
+    except jwt.ExpiredSignatureError:
+        return JSONResponse(status_code=401, content={
+			'error': True,
+			'message': 'Token 已過期，請重新登入'
+		})
+    except jwt.InvalidTokenError:
+        return JSONResponse(status_code=401, content={
+			'error': True,
+			'message': 'Token 無效，請重新登入'
+        })
+    
+@router.get("/note_data_render", response_model=note_render_data_response)
+def note_data_render (credentials:HTTPAuthorizationCredentials=Depends(security)):
+    try:
+        token = credentials.credentials.replace('Bearer ', '')
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_email = payload["email"]
+        user = User(user_email)
+        check_data = user.get_user_data()
+        user_id = check_data[0][0]
+        role = "owner"
+        notes = render_note_data(user_id, role)
+        if check_data and notes:
+            return note_render_data_response(data=notes)
+        return JSONResponse(status_code=403, content={
+			'error': True,
+			'message': '權限不足'
+		})
+        
+    except jwt.ExpiredSignatureError:
+        return JSONResponse(status_code=401, content={
+			'error': True,
+			'message': 'Token 已過期，請重新登入'
+		})
+    except jwt.InvalidTokenError:
+        return JSONResponse(status_code=401, content={
+			'error': True,
+			'message': 'Token 無效，請重新登入'
+        })
+
+
+@router.delete("/note_delete/{note_id}", response_model=note_delete)
+def note_data_render (note_id, credentials:HTTPAuthorizationCredentials=Depends(security)):
+    try:
+        token = credentials.credentials.replace('Bearer ', '')
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_email = payload["email"]
+        user = User(user_email)
+        check_data = user.get_user_data()
+        user_id = check_data[0][0]
+        permission = check_permission(note_id, user_id)
+        if check_data and permission:
+            delete_note(note_id)
+            return note_delete(ok=True)
+        return JSONResponse(status_code=403, content={
+			'error': True,
+			'message': '權限不足'
+		})
+        
+    except jwt.ExpiredSignatureError:
+        return JSONResponse(status_code=401, content={
+			'error': True,
+			'message': 'Token 已過期，請重新登入'
+		})
+    except jwt.InvalidTokenError:
+        return JSONResponse(status_code=401, content={
+			'error': True,
+			'message': 'Token 無效，請重新登入'
+        })
+    
+@router.post("/share_note/{note_id}", response_model=note_delete)
+def share_note (note_id, credentials:HTTPAuthorizationCredentials=Depends(security)):
+    try:
+        token = credentials.credentials.replace('Bearer ', '')
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_email = payload["email"]
+        user = User(user_email)
+        check_data = user.get_user_data()
+        user_id = check_data[0][0]
+        role = check_role(note_id, user_id)
+        share_user_id = check_shared_user("test1@test.com")
+        if role == "owner" and share_user_id:
+            add_permission(note_id, share_user_id)
+            return note_delete(ok=True)
+        return JSONResponse(status_code=403, content={
+			'error': True,
+			'message': '權限不足'
+		})
+        
     except jwt.ExpiredSignatureError:
         return JSONResponse(status_code=401, content={
 			'error': True,

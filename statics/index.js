@@ -49,7 +49,117 @@ newNote.addEventListener("click", async () => {
 });
 
 // 拿筆記資料
-const render = async function () {};
+
+const renderDom = function (data) {
+  const noteBar = document.querySelector(".note");
+  // const noteNumber = document.querySelector(".noteNumber");
+  for (let i = 0; i < data.length; i++) {
+    const createNoteSon = document.createElement("div");
+    createNoteSon.classList.add("noteSon");
+    createNoteSon.setAttribute("data-note-id", `note${data[i][0]}`);
+    const noteTitle = document.createElement("p");
+    noteTitle.classList.add("noteTitle");
+    noteTitle.setAttribute("data-id", `data${data[i][0]}`);
+    const btnBox = document.createElement("div");
+    btnBox.classList.add("btnBox");
+    const permissionBtn = document.createElement("button");
+    permissionBtn.classList.add("noteBtn");
+    permissionBtn.setAttribute("data-permission", `permissionBtn${data[i][0]}`);
+    permissionBtn.textContent = "分享權限";
+    const deleteBtn = document.createElement("button");
+    deleteBtn.classList.add("noteBtn");
+    deleteBtn.setAttribute("data-delete", `deleteBtn${data[i][0]}`);
+    deleteBtn.textContent = "刪除";
+
+    noteBar.appendChild(createNoteSon);
+    createNoteSon.appendChild(noteTitle);
+    createNoteSon.appendChild(btnBox);
+    btnBox.appendChild(permissionBtn);
+    btnBox.appendChild(deleteBtn);
+
+    // 點擊進入note頁面
+    noteTitle.textContent = data[i][1];
+    noteTitle.addEventListener("click", () => {
+      const id = noteTitle.dataset.id;
+      // console.log(id);
+      window.location.href = `/note/${id.slice(4)}`;
+    });
+
+    // 刪除筆記資料
+    deleteBtn.addEventListener("click", async () => {
+      const note_id = deleteBtn.dataset.delete.slice(9);
+      const url = `/api/note/note_delete/${note_id}`;
+      const request = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const response = await request.json();
+      console.log(response);
+
+      window.location.reload();
+    });
+
+    // 分享權限視窗
+    const coverlayer = document.querySelector(".coverlayer");
+    const close = document.getElementById("close");
+    const submit = document.getElementById("sumbit");
+    const note_id = permissionBtn.dataset.permission.slice(13);
+    close.addEventListener("click", () => {
+      coverlayer.classList.add("state--off");
+    });
+    permissionBtn.addEventListener("click", () => {
+      coverlayer.classList.remove("state--off");
+    });
+
+    submit.addEventListener("click", async () => {
+      const shareEmail = document.getElementById("shareEmail").value.trim();
+      if (!shareEmail) {
+        alert("請輸入信箱");
+        return;
+      } else {
+        const payload = {
+          email: shareEmail,
+        };
+        const url = `/api/note/share_note/${note_id}`;
+        const request = await fetch(url, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const response = await request.json();
+        console.log(response);
+      }
+    });
+  }
+};
+
+const getNoteData = async function () {
+  const url = "/api/note/note_data_render";
+  const request = await fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const response = await request.json();
+  console.log(response);
+
+  const noData = document.querySelector(".nodata");
+  if (response.data) {
+    renderDom(response.data);
+  } else {
+    noData.classList.remove("data__state--off");
+  }
+};
+getNoteData();
 
 // 登出
 const logout = document.getElementById("logout");

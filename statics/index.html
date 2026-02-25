@@ -25,7 +25,22 @@
       <button type="button" id="newnote">新建筆記</button>
     </div>
     <div class="note">
-      <p class="nodata">查無筆記資料</p>
+      <p class="nodata data__state data__state--off">查無筆記資料</p>
+      <p>2/25要讓每個筆記資料自己生成自己的彈出視窗</p>
+    </div>
+    <div class="coverlayer state--off">
+      <div class="popup">
+        <div class="topbar__popup">
+          <p class="shared">分享編輯權限</p>
+          <button type="button" id="close">X</button>
+        </div>
+        <div class="shareContent">
+          <p class="sharedEmail">請輸入分享對象的電子郵件</p>
+          <div class="noteNumber"></div>
+          <input type="text" id="shareEmail" />
+          <button type="button" id="sumbit">送出</button>
+        </div>
+      </div>
     </div>
   </body>
 </html>

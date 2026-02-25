@@ -56,26 +56,88 @@ def put_note_name(user_id, note_title, note_content):
         mycursor.close()
         conn.close()
 
-# 檢查權限
+# 檢查權限+拿取筆記內容
 def check_permission(note_id, user_id):
     conn = get_db_connect()
     mycursor = conn.cursor()
-    sql = "select notes.title, notes.content from notes join note_permissions on notes.id = note_permissions.note_id  where notes.id = %s and note_permissions.user_id = %s;"
+    sql = "select notes.title, notes.content, note_permissions.role from notes join note_permissions on notes.id = note_permissions.note_id  where notes.id = %s and note_permissions.user_id = %s;"
     param = (note_id, user_id)
     mycursor.execute(sql, param)
     result = [x for x in mycursor]
     mycursor.close()
     conn.close()
-    return result
+    return result[0]
 
 # 更新筆記資料
-def update_note(note_title, note_content, id):
+def update_note(note_title, note_content, note_id, user_id):
     conn = get_db_connect()
     mycursor = conn.cursor()
-    sql = "update notes set title = %s, content = %s where id = %s"
-    param = (note_title, note_content, id)
+    sql = "update notes n join note_permissions p on n.id = p.note_id set n.title = %s, n.content = %s where n.id = %s and p.user_id = %s and p.role in ('owner', 'edit')"
+    param = (note_title, note_content, note_id, user_id)
     mycursor.execute(sql, param)
     conn.commit()
     mycursor.close()
     conn.close()
     print("data updated successfully")
+    return mycursor.rowcount
+
+# 筆記列表資料
+def render_note_data(user_id, role):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select n.id, n.title from notes n join note_permissions p on n.id = p.note_id where p.user_id = %s and p.role = %s order by n.id ASC"
+    param = (user_id, role)
+    mycursor.execute(sql, param)
+    notes = mycursor.fetchall()
+    mycursor.close()
+    conn.close()
+    return notes
+
+# 刪除筆記資料
+def delete_note(note_id):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "delete from notes where id = %s"
+    param = (note_id,)
+    mycursor.execute(sql, param)
+    conn.commit()
+    mycursor.close()
+    conn.close()
+    print("data deleted successfully")
+
+# 驗證role
+def check_role(note_id, user_id):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select role from note_permissions where note_id = %s and user_id = %s"
+    param = (note_id, user_id)
+    mycursor.execute(sql, param)
+    result = mycursor.fetchall()
+    mycursor.close()
+    conn.close()
+    return result[0][0]
+
+# 確認分享者存在
+def check_shared_user(email):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select id from member where email = %s"
+    param = (email,)
+    mycursor.execute(sql, param)
+    result = mycursor.fetchall()
+    mycursor.close()
+    conn.close()
+    return result[0][0]
+
+# 新增權限
+def add_permission(note_id, user_id):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "insert into note_permissions (note_id, user_id, role) values (%s, %s, 'editor')"
+    conn.commit()
+    param = (note_id, user_id)
+    mycursor.execute(sql, param)
+    # result = mycursor.fetchall()
+    mycursor.close()
+    conn.close()
+    print("permission updated")
