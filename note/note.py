@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from fastapi import FastAPI, WebSocket, Request, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Cookie, HTTPException
 from auth.auth_func import User
 import jwt
 from env_settings.env import ALGORITHM, SECRET_KEY
@@ -9,13 +8,13 @@ from db_control.db_controller import put_note_name, check_permission, update_not
 from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response, note_render_data_response, note_delete, sharedNoteRequest
 
 router = APIRouter(prefix="/api/note", tags=["note"])
-security = HTTPBearer()
 
 @router.post("/note_add", response_model=note_addResponse)
-def note_add (request:note_data_request, credentials:HTTPAuthorizationCredentials=Depends(security)):
+def note_add (request:note_data_request, access_token : str = Cookie(None)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="未登入")
     try:
-        token = credentials.credentials.replace('Bearer ', '')
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_email = payload["email"]
         user = User(user_email)
         check_data = user.get_user_data()
@@ -41,10 +40,11 @@ def note_add (request:note_data_request, credentials:HTTPAuthorizationCredential
     
 
 @router.get("/note_content_render/{note_id}", response_model=note_render_request)
-def note_content_render (note_id, credentials:HTTPAuthorizationCredentials=Depends(security)):
+def note_content_render (note_id, access_token : str = Cookie(None)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="未登入")
     try:
-        token = credentials.credentials.replace('Bearer ', '')
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_email = payload["email"]
         user = User(user_email)
         check_data = user.get_user_data()
@@ -70,10 +70,11 @@ def note_content_render (note_id, credentials:HTTPAuthorizationCredentials=Depen
         })
     
 @router.put("/note_update/{note_id}", response_model=note_update_response)
-def note_update (note_id, request:note_update_request, credentials:HTTPAuthorizationCredentials=Depends(security)):
+def note_update (note_id, request:note_update_request, access_token : str = Cookie(None)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="未登入")
     try:
-        token = credentials.credentials.replace('Bearer ', '')
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_email = payload["email"]
         user = User(user_email)
         check_data = user.get_user_data()
@@ -103,10 +104,11 @@ def note_update (note_id, request:note_update_request, credentials:HTTPAuthoriza
         })
     
 @router.get("/note_data_render/{role}", response_model=note_render_data_response)
-def note_data_render (role, credentials:HTTPAuthorizationCredentials=Depends(security)):
+def note_data_render (role : str, access_token : str = Cookie(None)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="未登入")
     try:
-        token = credentials.credentials.replace('Bearer ', '')
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_email = payload["email"]
         user = User(user_email)
         check_data = user.get_user_data()
@@ -133,16 +135,17 @@ def note_data_render (role, credentials:HTTPAuthorizationCredentials=Depends(sec
 
 
 @router.delete("/note_delete/{note_id}", response_model=note_delete)
-def note_data_render (note_id, credentials:HTTPAuthorizationCredentials=Depends(security)):
+def note_data_render (note_id, access_token : str = Cookie(None)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="未登入")
     try:
-        token = credentials.credentials.replace('Bearer ', '')
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_email = payload["email"]
         user = User(user_email)
         check_data = user.get_user_data()
         user_id = check_data[0][0]
         permission = check_permission(note_id, user_id)
-        if check_data and permission:
+        if check_data and permission[0][2] == "owner":
             delete_note(note_id)
             return note_delete(ok=True)
         return JSONResponse(status_code=403, content={
@@ -162,10 +165,11 @@ def note_data_render (note_id, credentials:HTTPAuthorizationCredentials=Depends(
         })
     
 @router.post("/share_note/{note_id}", response_model=note_delete)
-def share_note (note_id, request:sharedNoteRequest, credentials:HTTPAuthorizationCredentials=Depends(security)):
+def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(None)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="未登入")
     try:
-        token = credentials.credentials.replace('Bearer ', '')
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
         user_email = payload["email"]
         user = User(user_email)
         check_data = user.get_user_data()

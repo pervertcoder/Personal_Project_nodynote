@@ -51,13 +51,14 @@ loginBtn.addEventListener("click", async () => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
+    credentials: "include",
   });
 
   const response = await request.json();
   console.log(response);
 
-  if (response.token) {
-    localStorage.setItem("JWTtoken", response.token);
+  if (response.ok) {
+    // localStorage.setItem("JWTtoken", response.token);
     window.location.href = "/dashboard";
   } else {
     console.log("帳號密碼錯誤");

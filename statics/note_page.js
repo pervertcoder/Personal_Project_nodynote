@@ -9,9 +9,7 @@ const checkState = async function () {
   const url = `/api/note/note_content_render/${id}`;
   const request = await fetch(url, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
   });
 
   const response = await request.json();
@@ -47,10 +45,10 @@ save.addEventListener("click", async () => {
   const request = await fetch(url, {
     method: "PUT",
     headers: {
-      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
+    credentials: "include",
   });
 
   const response = await request.json();

@@ -8,9 +8,7 @@ const checkState = async function () {
   const url = "/api/auth/login";
   const request = await fetch(url, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
   });
 
   const response = await request.json();
@@ -36,10 +34,10 @@ newNote.addEventListener("click", async () => {
   const request = await fetch(url, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify(payload),
+    credentials: "include",
   });
 
   const response = await request.json();
@@ -90,10 +88,10 @@ submit.addEventListener("click", async () => {
     const request = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
+      credentials: "include",
     });
 
     const response = await request.json();
@@ -145,9 +143,7 @@ const renderDomSelf = function (data) {
       const url = `/api/note/note_delete/${note_id}`;
       const request = await fetch(url, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
       });
 
       const response = await request.json();
@@ -185,9 +181,7 @@ const getNoteDataSelf = async function () {
   const url = `/api/note/note_data_render/${role}`;
   const request = await fetch(url, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
   });
 
   const response = await request.json();
@@ -207,9 +201,7 @@ const getNoteDataShare = async function () {
   const url = `/api/note/note_data_render/${role}`;
   const request = await fetch(url, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
   });
 
   const response = await request.json();
@@ -246,7 +238,15 @@ sharednote.addEventListener("click", async () => {
 
 // 登出
 const logout = document.getElementById("logout");
-logout.addEventListener("click", () => {
-  localStorage.removeItem("JWTtoken");
-  window.location.reload();
+logout.addEventListener("click", async () => {
+  const url = "/api/auth/logout";
+  const request = await fetch(url, {
+    method: "POST",
+    credentials: "include",
+  });
+
+  const response = await request.json();
+  if (response.ok) {
+    window.location.reload();
+  }
 });

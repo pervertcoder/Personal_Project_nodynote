@@ -18,7 +18,7 @@ class authResponse(BaseModel):
 
 class loginResponse(BaseModel):
     ok : bool
-    token : str
+    # token : str
     user_id : int
 
 class errorResponse(BaseModel):
@@ -54,3 +54,7 @@ class note_delete(BaseModel):
 
 class sharedNoteRequest(BaseModel):
     email : str
+
+class logoutResponse(BaseModel):
+    ok : bool
+    message : str
