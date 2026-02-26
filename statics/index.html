@@ -21,12 +21,12 @@
     </div>
     <div class="middlebar">
       <button type="button" id="mynote">我的筆記</button>
-      <button type="button" id="sharednote">分享筆記</button>
+      <button type="button" id="sharednote">共享的筆記</button>
       <button type="button" id="newnote">新建筆記</button>
     </div>
     <div class="note">
       <p class="nodata data__state data__state--off">查無筆記資料</p>
-      <p>2/25要讓每個筆記資料自己生成自己的彈出視窗</p>
+      <p class="todolist">待優化：共享的筆記要顯示共享狀態</p>
     </div>
     <div class="coverlayer state--off">
       <div class="popup">
@@ -37,7 +37,11 @@
         <div class="shareContent">
           <p class="sharedEmail">請輸入分享對象的電子郵件</p>
           <div class="noteNumber"></div>
-          <input type="text" id="shareEmail" />
+          <input
+            type="text"
+            id="shareEmail"
+            placeholder="請輸入分享對象的電子郵件"
+          />
           <button type="button" id="sumbit">送出</button>
         </div>
       </div>

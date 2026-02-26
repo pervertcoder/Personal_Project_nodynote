@@ -51,3 +51,6 @@ class note_render_data_response(BaseModel):
 
 class note_delete(BaseModel):
     ok : bool
+
+class sharedNoteRequest(BaseModel):
+    email : str

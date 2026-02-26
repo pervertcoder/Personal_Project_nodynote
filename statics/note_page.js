@@ -18,8 +18,8 @@ const checkState = async function () {
   console.log(response);
 
   if (response.note) {
-    note_name.value = response.note[0];
-    note.value = response.note[1];
+    note_name.value = response.note[0][0];
+    note.value = response.note[0][1];
     console.log("登入成功");
   } else {
     window.location.href = "/dashboard";

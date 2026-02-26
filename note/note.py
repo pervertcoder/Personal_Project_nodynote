@@ -6,7 +6,7 @@ from auth.auth_func import User
 import jwt
 from env_settings.env import ALGORITHM, SECRET_KEY
 from db_control.db_controller import put_note_name, check_permission, update_note, render_note_data, delete_note, check_role, check_shared_user, add_permission
-from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response, note_render_data_response, note_delete
+from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response, note_render_data_response, note_delete, sharedNoteRequest
 
 router = APIRouter(prefix="/api/note", tags=["note"])
 security = HTTPBearer()
@@ -50,8 +50,9 @@ def note_content_render (note_id, credentials:HTTPAuthorizationCredentials=Depen
         check_data = user.get_user_data()
         user_id = check_data[0][0]
         note_data = check_permission(note_id, user_id)
-        if note_data[2] == "owner" or note_data[2] == "editor":
-            return note_render_request(note=note_data)
+        if note_data:
+            if note_data[0][2] == "owner" or note_data[0][2] == "editor":
+                return note_render_request(note=note_data)
         else:
             return JSONResponse(status_code=403, content={
                 "error" : True,
@@ -101,8 +102,8 @@ def note_update (note_id, request:note_update_request, credentials:HTTPAuthoriza
 			'message': 'Token 無效，請重新登入'
         })
     
-@router.get("/note_data_render", response_model=note_render_data_response)
-def note_data_render (credentials:HTTPAuthorizationCredentials=Depends(security)):
+@router.get("/note_data_render/{role}", response_model=note_render_data_response)
+def note_data_render (role, credentials:HTTPAuthorizationCredentials=Depends(security)):
     try:
         token = credentials.credentials.replace('Bearer ', '')
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -110,7 +111,7 @@ def note_data_render (credentials:HTTPAuthorizationCredentials=Depends(security)
         user = User(user_email)
         check_data = user.get_user_data()
         user_id = check_data[0][0]
-        role = "owner"
+        # role = "owner"
         notes = render_note_data(user_id, role)
         if check_data and notes:
             return note_render_data_response(data=notes)
@@ -161,7 +162,7 @@ def note_data_render (note_id, credentials:HTTPAuthorizationCredentials=Depends(
         })
     
 @router.post("/share_note/{note_id}", response_model=note_delete)
-def share_note (note_id, credentials:HTTPAuthorizationCredentials=Depends(security)):
+def share_note (note_id, request:sharedNoteRequest, credentials:HTTPAuthorizationCredentials=Depends(security)):
     try:
         token = credentials.credentials.replace('Bearer ', '')
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -170,7 +171,8 @@ def share_note (note_id, credentials:HTTPAuthorizationCredentials=Depends(securi
         check_data = user.get_user_data()
         user_id = check_data[0][0]
         role = check_role(note_id, user_id)
-        share_user_id = check_shared_user("test1@test.com")
+
+        share_user_id = check_shared_user(request.email)
         if role == "owner" and share_user_id:
             add_permission(note_id, share_user_id)
             return note_delete(ok=True)

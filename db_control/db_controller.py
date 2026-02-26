@@ -66,13 +66,13 @@ def check_permission(note_id, user_id):
     result = [x for x in mycursor]
     mycursor.close()
     conn.close()
-    return result[0]
+    return result
 
 # 更新筆記資料
 def update_note(note_title, note_content, note_id, user_id):
     conn = get_db_connect()
     mycursor = conn.cursor()
-    sql = "update notes n join note_permissions p on n.id = p.note_id set n.title = %s, n.content = %s where n.id = %s and p.user_id = %s and p.role in ('owner', 'edit')"
+    sql = "update notes n join note_permissions p on n.id = p.note_id set n.title = %s, n.content = %s where n.id = %s and p.user_id = %s and p.role in ('owner', 'editor')"
     param = (note_title, note_content, note_id, user_id)
     mycursor.execute(sql, param)
     conn.commit()
@@ -134,9 +134,9 @@ def add_permission(note_id, user_id):
     conn = get_db_connect()
     mycursor = conn.cursor()
     sql = "insert into note_permissions (note_id, user_id, role) values (%s, %s, 'editor')"
-    conn.commit()
     param = (note_id, user_id)
     mycursor.execute(sql, param)
+    conn.commit()
     # result = mycursor.fetchall()
     mycursor.close()
     conn.close()

@@ -48,15 +48,69 @@ newNote.addEventListener("click", async () => {
   window.location.href = `/note/${response.note_id}`;
 });
 
-// 拿筆記資料
+const openShareModal = function (noteId) {
+  const modal = document.querySelector(".coverlayer");
+  const close = document.getElementById("close");
+  const submit = document.getElementById("sumbit");
 
-const renderDom = function (data) {
-  const noteBar = document.querySelector(".note");
+  modal.dataset.modalid = noteId;
+  submit.dataset.submitid = noteId;
+
+  modal.classList.remove("state--off");
+  close.addEventListener("click", () => {
+    modal.classList.add("state--off");
+  });
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("noteBtn")) {
+      const card = e.target.closest(".noteSon");
+      if (!card) return;
+
+      const noteId = card.dataset.noteid;
+      openShareModal(noteId);
+    }
+  });
+});
+
+// 傳分享資料;
+const submit = document.getElementById("sumbit");
+submit.addEventListener("click", async () => {
+  const shareEmail = document.getElementById("shareEmail").value.trim();
+  const note_id = submit.dataset.submitid.slice(4);
+  if (!shareEmail) {
+    alert("請輸入信箱");
+    return;
+  } else {
+    const payload = {
+      email: shareEmail,
+    };
+    const url = `/api/note/share_note/${note_id}`;
+    const request = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const response = await request.json();
+    console.log(response);
+
+    window.location.reload();
+  }
+});
+
+// 拿筆記資料
+const noteBar = document.querySelector(".note");
+const renderDomSelf = function (data) {
   // const noteNumber = document.querySelector(".noteNumber");
   for (let i = 0; i < data.length; i++) {
     const createNoteSon = document.createElement("div");
     createNoteSon.classList.add("noteSon");
-    createNoteSon.setAttribute("data-note-id", `note${data[i][0]}`);
+    createNoteSon.setAttribute("data-noteid", `note${data[i][0]}`);
     const noteTitle = document.createElement("p");
     noteTitle.classList.add("noteTitle");
     noteTitle.setAttribute("data-id", `data${data[i][0]}`);
@@ -101,47 +155,34 @@ const renderDom = function (data) {
 
       window.location.reload();
     });
+  }
+};
 
-    // 分享權限視窗
-    const coverlayer = document.querySelector(".coverlayer");
-    const close = document.getElementById("close");
-    const submit = document.getElementById("sumbit");
-    const note_id = permissionBtn.dataset.permission.slice(13);
-    close.addEventListener("click", () => {
-      coverlayer.classList.add("state--off");
-    });
-    permissionBtn.addEventListener("click", () => {
-      coverlayer.classList.remove("state--off");
-    });
+const renderDomShare = function (data) {
+  for (let i = 0; i < data.length; i++) {
+    const createNoteSon = document.createElement("div");
+    createNoteSon.classList.add("noteSon");
+    createNoteSon.setAttribute("data-noteid", `note${data[i][0]}`);
+    const noteTitle = document.createElement("p");
+    noteTitle.classList.add("noteTitle");
+    noteTitle.setAttribute("data-id", `data${data[i][0]}`);
 
-    submit.addEventListener("click", async () => {
-      const shareEmail = document.getElementById("shareEmail").value.trim();
-      if (!shareEmail) {
-        alert("請輸入信箱");
-        return;
-      } else {
-        const payload = {
-          email: shareEmail,
-        };
-        const url = `/api/note/share_note/${note_id}`;
-        const request = await fetch(url, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
+    noteBar.appendChild(createNoteSon);
+    createNoteSon.appendChild(noteTitle);
 
-        const response = await request.json();
-        console.log(response);
-      }
+    // 點擊進入note頁面
+    noteTitle.textContent = data[i][1];
+    noteTitle.addEventListener("click", () => {
+      const id = noteTitle.dataset.id;
+      // console.log(id);
+      window.location.href = `/note/${id.slice(4)}`;
     });
   }
 };
 
-const getNoteData = async function () {
-  const url = "/api/note/note_data_render";
+const getNoteDataSelf = async function () {
+  const role = "owner";
+  const url = `/api/note/note_data_render/${role}`;
   const request = await fetch(url, {
     method: "GET",
     headers: {
@@ -154,12 +195,54 @@ const getNoteData = async function () {
 
   const noData = document.querySelector(".nodata");
   if (response.data) {
-    renderDom(response.data);
+    renderDomSelf(response.data);
   } else {
     noData.classList.remove("data__state--off");
   }
 };
-getNoteData();
+getNoteDataSelf();
+
+const getNoteDataShare = async function () {
+  const role = "editor";
+  const url = `/api/note/note_data_render/${role}`;
+  const request = await fetch(url, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const response = await request.json();
+  console.log(response);
+
+  const noData = document.querySelector(".nodata");
+  if (response.data) {
+    renderDomShare(response.data);
+  } else {
+    noData.classList.remove("data__state--off");
+  }
+};
+
+// 功能按鈕
+const mynote = document.getElementById("mynote");
+mynote.addEventListener("click", () => {
+  const note = document.querySelector(".note");
+  const noteSons = document.querySelectorAll(".noteSon");
+  for (let son of noteSons) {
+    note.removeChild(son);
+  }
+  window.location.reload();
+});
+
+const sharednote = document.getElementById("sharednote");
+sharednote.addEventListener("click", async () => {
+  const note = document.querySelector(".note");
+  const noteSons = document.querySelectorAll(".noteSon");
+  for (let son of noteSons) {
+    note.removeChild(son);
+  }
+  getNoteDataShare();
+});
 
 // 登出
 const logout = document.getElementById("logout");
