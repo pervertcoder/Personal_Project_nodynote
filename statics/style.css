@@ -3,13 +3,19 @@
 }
 
 p {
-  /* display: inline-block; */
   font-size: 30px;
+  display: flex;
+  align-items: center;
 }
 
 .right {
   display: flex;
   justify-content: center;
+}
+
+.title {
+  font-size: 40px;
+  font-weight: 700;
 }
 
 .topbar {
