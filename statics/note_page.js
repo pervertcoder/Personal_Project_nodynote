@@ -33,8 +33,7 @@ nody.addEventListener("click", () => {
 
 // 儲存
 const save = document.getElementById("save");
-
-save.addEventListener("click", async () => {
+const saveFile = async function () {
   let note_name = document.getElementById("note_name").value.trim();
   let note_content = document.getElementById("note").value.trim();
   const payload = {
@@ -53,4 +52,30 @@ save.addEventListener("click", async () => {
 
   const response = await request.json();
   console.log(response);
-});
+};
+
+// save.addEventListener("click", saveFile);
+
+// websocket連線
+
+const ws = new WebSocket(`ws://127.0.0.1:8000/ws/note/${id}`);
+ws.onopen = () => {
+  console.log("websocket已連線");
+};
+
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+
+  if (data.type === "init") {
+    note_name.value = data.name;
+    note.value = data.content;
+  } else if (data.type === "name") {
+    note_name.value = data.value;
+  } else if (data.type === "content") {
+    note.value = data.value;
+  }
+};
+
+ws.onclose = () => {
+  console.log("websocket已關閉");
+};

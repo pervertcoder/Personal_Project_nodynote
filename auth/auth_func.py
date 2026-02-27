@@ -20,7 +20,7 @@ class User:
 # 會員驗證
 def create_jwt(data:dict)->str:
 	payload = data.copy()
-	expire_time = datetime.now(timezone.utc) + timedelta(hours=1)
+	expire_time = datetime.now(timezone.utc) + timedelta(hours=3)
 	payload["exp"] = int((expire_time).timestamp())
 	token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 	return token

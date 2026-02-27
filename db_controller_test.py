@@ -49,8 +49,8 @@ def check_permission(note_id, user_id):
     conn.close()
     return result[0]
 
-ans3 = check_permission(1, 1)
-print(ans3)
+# ans3 = check_permission(1, 1)
+# print(ans3)
 
 def render_note_data(user_id):
     conn = get_db_connect()
@@ -94,3 +94,31 @@ def check_shared_user(email):
 
 # ans6 = check_shared_user("test1@test.com")
 # print(ans6)
+
+def get_note_data(note_id:str):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select id, title, content from notes where id = %s"
+    param = (note_id,)
+    mycursor.execute(sql, param)
+    result = [x for x in mycursor]
+    mycursor.close()
+    conn.close()
+    return result
+
+# ans7 = get_note_data(1)
+# print(ans7)
+
+def get_verifiy_thirty(note_id:str):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select user_id from note_permissions where note_id = %s"
+    param = (note_id,)
+    mycursor.execute(sql, param)
+    result = [x for x in mycursor]
+    mycursor.close()
+    conn.close()
+    return result
+
+# ans8 = get_verifiy_thirty(1)
+# print(ans8)
