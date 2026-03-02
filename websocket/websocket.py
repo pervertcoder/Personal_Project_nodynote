@@ -15,6 +15,7 @@ websocket_router = APIRouter()
 
 active_notes = {}
 
+
 # 驗證
 def get_current_user(access_token : str = Cookie(None)):
     if not access_token:
@@ -39,38 +40,38 @@ def verify_note_permission(note_id : str, user = Depends(get_current_user)):
     }
     return answer
 
-last_time_verify = {}
-def time_to_verify(note_id):
-    now = time.time()
-    if note_id not in last_time_verify:
-        last_time_verify[note_id] = now
-        return True
-    if now - last_time_verify[note_id] >= 30:
-        last_time_verify[note_id] = now
-        return True
-    return False
+# last_time_verify = {}
+# def time_to_verify(note_id):
+#     now = time.time()
+#     if note_id not in last_time_verify:
+#         last_time_verify[note_id] = now
+#         return True
+#     if now - last_time_verify[note_id] >= 30:
+#         last_time_verify[note_id] = now
+#         return True
+#     return False
 
-def verify_current_user_cookie(websocket:WebSocket):
-    cookies = websocket.cookies
-    token = cookies.get("access_token")
-    if not token:
-        return None
-    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    user_email = payload["email"]
-    user = User(user_email)
-    check_data = user.get_user_data()
-    if check_data:
-        user_id = check_data[0][0]
-        return user_id
-    else:
-        return None
+# def verify_current_user_cookie(websocket:WebSocket):
+#     cookies = websocket.cookies
+#     token = cookies.get("access_token")
+#     if not token:
+#         return None
+#     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#     user_email = payload["email"]
+#     user = User(user_email)
+#     check_data = user.get_user_data()
+#     if check_data:
+#         user_id = check_data[0][0]
+#         return user_id
+#     else:
+#         return None
 
-def get_note_permission(note_id:str):
-    note = get_verifiy_thirty(note_id)
-    if note:
-        return note
-    else:
-        return None
+# def get_note_permission(note_id:str):
+#     note = get_verifiy_thirty(note_id)
+#     if note:
+#         return note
+#     else:
+#         return None
     
 def update_via_websocket(note_title:str, note_content:str, note_id:int):
     # noteId = int(note_id)
@@ -85,14 +86,14 @@ async def save_DB (note_id:int):
 
 @websocket_router.websocket("/ws/note/{note_id}")
 async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permission = Depends(verify_note_permission)):
+ 
     await websocket.accept()
     
-    user_state = user_permission
     # user_id = user_state["user_id"]
     if note_id not in active_notes:
         notes = get_note_data(note_id)
         active_notes[note_id] = {"name": notes[0][1], "content" : notes[0][2], "connection" : set()}
-        # asyncio.create_task(save_DB(note_id))
+        asyncio.create_task(save_DB(note_id))
     
     active_notes[note_id]["connection"].add(websocket)
     
@@ -105,12 +106,12 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
     try:
         while True:
 
-            if time_to_verify(note_id):
-                user = verify_current_user_cookie(websocket)
-                note = get_note_permission(note_id)
-                if not user or user not in note:
-                    await websocket.close(code=1008)
-                    break
+            # if time_to_verify(note_id):
+            #     user = verify_current_user_cookie(websocket)
+            #     note = get_note_permission(note_id)
+            #     if not user or user not in note:
+            #         await websocket.close(code=1008)
+            #         break
             
 
             data = await websocket.receive_json()
@@ -129,7 +130,8 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
         if len(active_notes[note_id]["connection"]) == 0:
             print("最後一人離開，存檔")
             note = active_notes[note_id]
-            # await run_in_threadpool(update_via_websocket, note["name"], note["content"], note_id)
+            await run_in_threadpool(update_via_websocket, note["name"], note["content"], note_id)
 
             del active_notes[note_id]
             print("記憶體已清除")
+

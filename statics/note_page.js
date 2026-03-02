@@ -76,6 +76,32 @@ ws.onmessage = (event) => {
   }
 };
 
-ws.onclose = () => {
-  console.log("websocket已關閉");
+ws.onclose = (event) => {
+  console.log("close code:", event.code);
 };
+
+let nameTimeout;
+note_name.addEventListener("input", () => {
+  clearTimeout(nameTimeout);
+  nameTimeout = setTimeout(() => {
+    ws.send(
+      JSON.stringify({
+        type: "name",
+        value: note_name.value,
+      }),
+    );
+  }, 200);
+});
+
+let contentTimeout;
+note.addEventListener("input", () => {
+  clearTimeout(contentTimeout);
+  contentTimeout = setTimeout(() => {
+    ws.send(
+      JSON.stringify({
+        type: "content",
+        value: note.value,
+      }),
+    );
+  }, 200);
+});
