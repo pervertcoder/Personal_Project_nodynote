@@ -135,3 +135,6 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
             del active_notes[note_id]
             print("記憶體已清除")
 
+
+# 本來的規劃是做純文字的編輯，是否要加上表格功能 讓筆記功能更完整一點
+# 目前正遇到如何解決同一行衝突的部分 在想要把利用版本去做區分 還是要使用專門技術OT/CRDT
