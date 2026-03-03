@@ -58,7 +58,7 @@ const saveFile = async function () {
 
 // websocket連線
 
-const ws = new WebSocket(`ws://127.0.0.1:8000/ws/note/${id}`);
+const ws = new WebSocket(`ws://52.72.19.213:8000/ws/note/${id}`);
 ws.onopen = () => {
   console.log("websocket已連線");
 };
