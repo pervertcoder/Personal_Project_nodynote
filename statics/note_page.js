@@ -57,8 +57,8 @@ const saveFile = async function () {
 // save.addEventListener("click", saveFile);
 
 // websocket連線
-
-const ws = new WebSocket(`ws://52.72.19.213:8000/ws/note/${id}`);
+const websocketLink = window.location.href.slice(7, 16);
+const ws = new WebSocket(`ws://${websocketLink}:8000/ws/note/${id}`);
 ws.onopen = () => {
   console.log("websocket已連線");
 };
@@ -73,6 +73,22 @@ ws.onmessage = (event) => {
     note_name.value = data.value;
   } else if (data.type === "content") {
     note.value = data.value;
+  } else if (data.type === "line_updated") {
+    const { lineIndex, newText, version } = data.content;
+
+    const lines = note.value.split("\n");
+
+    // 只更新該行
+    lines[lineIndex] = newText;
+    note.value = lines.join("\n");
+
+    // 更新本地版本號，避免下一次發生衝突
+    lineVersions[lineIndex] = version;
+    previousLines[lineIndex] = newText;
+  }
+
+  if (data.type === "conflict") {
+    alert(`第${data.content.lineIndex + 1}行衝突，請手動合併`);
   }
 };
 
@@ -93,15 +109,34 @@ note_name.addEventListener("input", () => {
   }, 200);
 });
 
+// 處理衝突
+let previousLines = note.value.split("\n");
+let lineVersions = previousLines.map(() => 0);
+
+const diffLogic = function () {
+  const currentLines = note.value.split("\n");
+
+  currentLines.forEach((line, index) => {
+    if (line !== previousLines[index]) {
+      ws.send(
+        JSON.stringify({
+          type: "updated_line",
+          content: {
+            lineIndex: index,
+            nextLine: line,
+            version: lineVersions[index],
+          },
+        }),
+      );
+
+      lineVersions[index]++;
+      previousLines[index] = line;
+    }
+  });
+};
+
 let contentTimeout;
 note.addEventListener("input", () => {
   clearTimeout(contentTimeout);
-  contentTimeout = setTimeout(() => {
-    ws.send(
-      JSON.stringify({
-        type: "content",
-        value: note.value,
-      }),
-    );
-  }, 200);
+  contentTimeout = setTimeout(diffLogic, 200);
 });
