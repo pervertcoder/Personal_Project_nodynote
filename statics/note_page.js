@@ -123,7 +123,7 @@ const diffLogic = function () {
           type: "updated_line",
           content: {
             lineIndex: index,
-            nextLine: line,
+            newText: line,
             version: lineVersions[index],
           },
         }),

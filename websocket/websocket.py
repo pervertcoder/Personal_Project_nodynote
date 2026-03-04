@@ -92,15 +92,17 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
     # user_id = user_state["user_id"]
     if note_id not in active_notes:
         notes = get_note_data(note_id)
-        active_notes[note_id] = {"name": notes[0][1], "content" : notes[0][2], "connection" : set()}
+        raw_content = notes[0][2]
+        lines = raw_content.split("\n")
+        active_notes[note_id] = {"name": notes[0][1], "content" : [{"text" : line, "version" : 0} for line in lines], "connection" : set()}
         asyncio.create_task(save_DB(note_id))
     
     active_notes[note_id]["connection"].add(websocket)
     
     await websocket.send_json({
-        "type" : "init",
+        "type" : "content",
         "name" : active_notes[note_id]["name"],
-        "content" : active_notes[note_id]["content"]
+        "content" : "\n".join(line["text"] for line in active_notes[note_id]["content"])
     })
     
     try:
@@ -115,14 +117,41 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
             
 
             data = await websocket.receive_json()
-            if data["type"] == "name":
+            msg_type = data["type"]
+            content = data["content"]
+            if msg_type == "name":
                 active_notes[note_id]["name"] = data["value"]
-            elif data["type"] == "content":
-                active_notes[note_id]["content"] = data["value"]
+            elif msg_type == "updated_line":
+                line_index = content["lineIndex"]
+                new_text = content["newText"]
+                client_version = content["version"]
+
+                note = active_notes[note_id]
+                server_line = note["content"][line_index]
+
+                if client_version == server_line["version"]:
+                    server_line["text"] = new_text
+                    server_line["version"] += 1
             
-            for conn in active_notes[note_id]["connection"]:
-                if conn != websocket:
-                    await conn.send_json(data)
+                    for conn in note["connection"]:
+                        if conn != websocket:
+                            await conn.send_json({
+                                "type" : "updated_line",
+                                "content" : {
+                                    "lineIndex" : line_index,
+                                    "newText" : new_text,
+                                    "version" : server_line["version"]
+                                }
+                            })
+                else:
+                    await websocket.send_json({
+                        "type" : "conflict",
+                        "content" : {
+                            "lineIndex": line_index,
+                            "serverText": server_line["text"],
+                            "serverVersion": server_line["version"]
+                        }
+                    })
     except WebSocketDisconnect:
         print("使用者斷線")
         active_notes[note_id]["connection"].discard(websocket)
