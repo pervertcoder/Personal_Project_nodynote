@@ -1,4 +1,5 @@
 from db_control.db_pool import get_db_connect
+import json
 
 # 寫入會員資料
 def write_data(user_name:str, use_email:str, user_password:str):
@@ -39,8 +40,11 @@ def put_note_name(user_id:str, note_title:str, note_content:str):
     mycursor = conn.cursor()
     try:
         conn.start_transaction()
+        lines = note_content.split("\n")
+        content_list = [{"text" : line, "version" : 0} for line in lines]
+        content_str = json.dumps(content_list)
         sql = "insert into notes (title, content) values (%s, %s)"
-        param = (note_title, note_content)
+        param = (note_title, content_str)
         mycursor.execute(sql, param)
         note_id = mycursor.lastrowid
         sql2 = "insert into note_permissions (note_id, user_id, role) values (%s, %s, %s)"
@@ -93,11 +97,12 @@ def get_verifiy_thirty(note_id:str):
     return result
 
 # websocket更新DB
-def update_note_websocket(note_title:str, note_content:str, note_id:int):
+def update_note_websocket(note_title:str, note_content:list, note_id:int):
+    content_str = json.dumps(note_content)
     conn = get_db_connect()
     mycursor = conn.cursor()
     sql = "update notes n join note_permissions p on n.id = p.note_id set n.title = %s, n.content = %s where n.id = %s"
-    param = (note_title, note_content, note_id)
+    param = (note_title, content_str, note_id)
     mycursor.execute(sql, param)
     conn.commit()
     mycursor.close()

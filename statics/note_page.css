@@ -59,7 +59,7 @@ label {
   margin-top: 10px;
   display: flex;
   justify-content: end;
-  display: none;
+  /* display: none; */
 }
 
 #save {

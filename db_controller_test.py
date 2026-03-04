@@ -106,7 +106,7 @@ def get_note_data(note_id:str):
     conn.close()
     return result
 
-# ans7 = get_note_data(1)
+# ans7 = get_note_data(7)
 # print(ans7)
 
 def get_verifiy_thirty(note_id:str):

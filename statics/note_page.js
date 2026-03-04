@@ -17,7 +17,9 @@ const checkState = async function () {
 
   if (response.note) {
     note_name.value = response.note[0][0];
-    note.value = response.note[0][1];
+    const contentArray = JSON.parse(response.note[0][1]);
+    const lines = contentArray.map((line) => line.text);
+    note.value = lines.join("\n");
     console.log("登入成功");
   } else {
     window.location.href = "/dashboard";
@@ -56,6 +58,8 @@ const saveFile = async function () {
 
 // save.addEventListener("click", saveFile);
 
+let previousLines = [];
+let lineVersions = [];
 // websocket連線
 const websocketLink = window.location.href.slice(7, 16);
 const ws = new WebSocket(`ws://${websocketLink}:8000/ws/note/${id}`);
@@ -66,29 +70,28 @@ ws.onopen = () => {
 ws.onmessage = (event) => {
   const data = JSON.parse(event.data);
 
-  if (data.type === "init") {
+  if (data.type === "name") {
     note_name.value = data.name;
-    note.value = data.content;
-  } else if (data.type === "name") {
-    note_name.value = data.value;
   } else if (data.type === "content") {
-    note.value = data.value;
+    note.value = data.content.map((line) => line.text).join("\n");
+    previousLines = note.value.split("\n");
+    lineVersions = data.content.map((line) => line.version);
   } else if (data.type === "line_updated") {
     const { lineIndex, newText, version } = data.content;
 
-    const lines = note.value.split("\n");
-
     // 只更新該行
+    const lines = note.value.split("\n");
     lines[lineIndex] = newText;
     note.value = lines.join("\n");
 
     // 更新本地版本號，避免下一次發生衝突
-    lineVersions[lineIndex] = version;
     previousLines[lineIndex] = newText;
+    lineVersions[lineIndex] = version;
   }
 
   if (data.type === "conflict") {
     alert(`第${data.content.lineIndex + 1}行衝突，請手動合併`);
+    return;
   }
 };
 
@@ -109,10 +112,6 @@ note_name.addEventListener("input", () => {
   }, 200);
 });
 
-// 處理衝突
-let previousLines = note.value.split("\n");
-let lineVersions = previousLines.map(() => 0);
-
 const diffLogic = function () {
   const currentLines = note.value.split("\n");
 
@@ -128,9 +127,6 @@ const diffLogic = function () {
           },
         }),
       );
-
-      lineVersions[index]++;
-      previousLines[index] = line;
     }
   });
 };

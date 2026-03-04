@@ -7,7 +7,7 @@ import jwt
 from env_settings.env import ALGORITHM, SECRET_KEY
 
 import time
-
+import json
 from fastapi.concurrency import run_in_threadpool
 import asyncio
 
@@ -40,40 +40,9 @@ def verify_note_permission(note_id : str, user = Depends(get_current_user)):
     }
     return answer
 
-# last_time_verify = {}
-# def time_to_verify(note_id):
-#     now = time.time()
-#     if note_id not in last_time_verify:
-#         last_time_verify[note_id] = now
-#         return True
-#     if now - last_time_verify[note_id] >= 30:
-#         last_time_verify[note_id] = now
-#         return True
-#     return False
 
-# def verify_current_user_cookie(websocket:WebSocket):
-#     cookies = websocket.cookies
-#     token = cookies.get("access_token")
-#     if not token:
-#         return None
-#     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#     user_email = payload["email"]
-#     user = User(user_email)
-#     check_data = user.get_user_data()
-#     if check_data:
-#         user_id = check_data[0][0]
-#         return user_id
-#     else:
-#         return None
-
-# def get_note_permission(note_id:str):
-#     note = get_verifiy_thirty(note_id)
-#     if note:
-#         return note
-#     else:
-#         return None
     
-def update_via_websocket(note_title:str, note_content:str, note_id:int):
+def update_via_websocket(note_title:str, note_content:list, note_id:int):
     # noteId = int(note_id)
     result = update_note_websocket(note_title, note_content, note_id)
     return result
@@ -89,12 +58,15 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
  
     await websocket.accept()
     
-    # user_id = user_state["user_id"]
     if note_id not in active_notes:
         notes = get_note_data(note_id)
         raw_content = notes[0][2]
-        lines = raw_content.split("\n")
-        active_notes[note_id] = {"name": notes[0][1], "content" : [{"text" : line, "version" : 0} for line in lines], "connection" : set()}
+        try:
+            lines = json.loads(raw_content)
+        except json.JSONDecodeError:
+            lines = [{"text": raw_content, "version": 0}]
+
+        active_notes[note_id] = {"name": notes[0][1], "content" : lines, "connection" : set()}
         asyncio.create_task(save_DB(note_id))
     
     active_notes[note_id]["connection"].add(websocket)
@@ -102,20 +74,11 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
     await websocket.send_json({
         "type" : "content",
         "name" : active_notes[note_id]["name"],
-        "content" : "\n".join(line["text"] for line in active_notes[note_id]["content"])
+        "content" : active_notes[note_id]["content"]
     })
     
     try:
         while True:
-
-            # if time_to_verify(note_id):
-            #     user = verify_current_user_cookie(websocket)
-            #     note = get_note_permission(note_id)
-            #     if not user or user not in note:
-            #         await websocket.close(code=1008)
-            #         break
-            
-
             data = await websocket.receive_json()
             msg_type = data["type"]
             content = data["content"]
@@ -154,15 +117,18 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                     })
     except WebSocketDisconnect:
         print("使用者斷線")
-        active_notes[note_id]["connection"].discard(websocket)
+    finally:
+        note = active_notes.get(note_id)
+        if note:
+            active_notes[note_id]["connection"].discard(websocket)
 
-        if len(active_notes[note_id]["connection"]) == 0:
-            print("最後一人離開，存檔")
-            note = active_notes[note_id]
-            await run_in_threadpool(update_via_websocket, note["name"], note["content"], note_id)
+            if len(active_notes[note_id]["connection"]) == 0:
+                print("最後一人離開，存檔")
+                note = active_notes[note_id]
+                await run_in_threadpool(update_via_websocket, note["name"], note["content"], note_id)
 
-            del active_notes[note_id]
-            print("記憶體已清除")
+                del active_notes[note_id]
+                print("記憶體已清除")
 
 
 # 本來的規劃是做純文字的編輯，是否要加上表格功能 讓筆記功能更完整一點
