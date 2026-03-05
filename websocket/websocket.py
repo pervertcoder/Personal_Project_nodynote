@@ -97,15 +97,15 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                     server_line["version"] += 1
             
                     for conn in note["connection"]:
-                        if conn != websocket:
-                            await conn.send_json({
-                                "type" : "updated_line",
-                                "content" : {
-                                    "lineIndex" : line_index,
-                                    "newText" : new_text,
-                                    "version" : server_line["version"]
-                                }
-                            })
+                        # if conn != websocket:
+                        await conn.send_json({
+                            "type" : "updated_line",
+                            "content" : {
+                                "lineIndex" : line_index,
+                                "newText" : new_text,
+                                "version" : server_line["version"]
+                            }
+                        })
                 else:
                     await websocket.send_json({
                         "type" : "conflict",
@@ -125,6 +125,8 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
             if len(active_notes[note_id]["connection"]) == 0:
                 print("最後一人離開，存檔")
                 note = active_notes[note_id]
+                for line in note["content"]:
+                    line["version"] = 0
                 await run_in_threadpool(update_via_websocket, note["name"], note["content"], note_id)
 
                 del active_notes[note_id]

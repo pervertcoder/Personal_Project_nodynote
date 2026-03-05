@@ -69,6 +69,7 @@ ws.onopen = () => {
 
 ws.onmessage = (event) => {
   const data = JSON.parse(event.data);
+  console.log(data);
 
   if (data.type === "name") {
     note_name.value = data.name;
@@ -76,7 +77,7 @@ ws.onmessage = (event) => {
     note.value = data.content.map((line) => line.text).join("\n");
     previousLines = note.value.split("\n");
     lineVersions = data.content.map((line) => line.version);
-  } else if (data.type === "line_updated") {
+  } else if (data.type === "updated_line") {
     const { lineIndex, newText, version } = data.content;
 
     // 只更新該行
@@ -87,6 +88,7 @@ ws.onmessage = (event) => {
     // 更新本地版本號，避免下一次發生衝突
     previousLines[lineIndex] = newText;
     lineVersions[lineIndex] = version;
+    console.log(lineVersions);
   }
 
   if (data.type === "conflict") {
@@ -106,7 +108,11 @@ note_name.addEventListener("input", () => {
     ws.send(
       JSON.stringify({
         type: "name",
-        value: note_name.value,
+        content: {
+          lineIndex: index,
+          newText: line,
+          version: lineVersions[index],
+        },
       }),
     );
   }, 200);
@@ -128,6 +134,7 @@ const diffLogic = function () {
         }),
       );
     }
+    previousLines[index] = line;
   });
 };
 
