@@ -51,3 +51,7 @@ CREATE TABLE note_permissions (
     UNIQUE KEY unique_user_note (note_id, user_id)
 
 );
+
+alter table note_permissions modify column role ENUM('owner', 'editor',
+
+'viewer')

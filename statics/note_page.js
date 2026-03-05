@@ -30,6 +30,9 @@ checkState();
 // 到dashboard
 const nody = document.querySelector(".nody");
 nody.addEventListener("click", () => {
+  // setTimeout(() => {
+  //   window.location.href = "/dashboard";
+  // }, 500);
   window.location.href = "/dashboard";
 });
 
@@ -69,7 +72,7 @@ ws.onopen = () => {
 
 ws.onmessage = (event) => {
   const data = JSON.parse(event.data);
-  console.log(data);
+  // console.log(data);
 
   if (data.type === "name") {
     note_name.value = data.name;
@@ -109,9 +112,7 @@ note_name.addEventListener("input", () => {
       JSON.stringify({
         type: "name",
         content: {
-          lineIndex: index,
-          newText: line,
-          version: lineVersions[index],
+          newName: note_name.value,
         },
       }),
     );
@@ -120,6 +121,10 @@ note_name.addEventListener("input", () => {
 
 const diffLogic = function () {
   const currentLines = note.value.split("\n");
+  while (lineVersions.length < currentLines.length) {
+    lineVersions.push(0);
+    previousLines.push("");
+  }
 
   currentLines.forEach((line, index) => {
     if (line !== previousLines[index]) {

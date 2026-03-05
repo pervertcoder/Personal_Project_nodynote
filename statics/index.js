@@ -1,4 +1,9 @@
 "use strict";
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) {
+    location.reload();
+  }
+});
 
 // JWT驗證
 const token = localStorage.getItem("JWTtoken");
@@ -54,9 +59,9 @@ const openShareModal = function (noteId) {
   modal.dataset.modalid = noteId;
   submit.dataset.submitid = noteId;
 
-  modal.classList.remove("state--off");
+  modal.classList.add("state--on");
   close.addEventListener("click", () => {
-    modal.classList.add("state--off");
+    modal.classList.remove("state--on");
   });
 };
 
@@ -250,3 +255,5 @@ logout.addEventListener("click", async () => {
     window.location.reload();
   }
 });
+
+// 待優化：共享的筆記要顯示共享狀態
