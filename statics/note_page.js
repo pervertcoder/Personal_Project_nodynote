@@ -61,7 +61,7 @@ const saveFile = async function () {
 let previousLines = [];
 let lineVersions = [];
 // websocket連線
-const websocketLink = window.location.href.slice(7, 16);
+const websocketLink = window.location.hostname;
 const ws = new WebSocket(`ws://${websocketLink}:8000/ws/note/${id}`);
 ws.onopen = () => {
   console.log("websocket已連線");
