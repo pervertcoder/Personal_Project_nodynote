@@ -37,6 +37,7 @@ label {
   width: 80%;
   height: 80vh;
   margin: 20px 20px;
+  display: none;
 }
 
 .attendList {
@@ -64,6 +65,19 @@ label {
 
 #save {
   cursor: pointer;
+}
+
+#editor {
+  margin-top: 20px;
+  width: 80%;
+  padding: 10px;
+}
+
+.block {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 footer {

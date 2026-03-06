@@ -6,7 +6,6 @@ from auth.auth_func import User
 import jwt
 from env_settings.env import ALGORITHM, SECRET_KEY
 
-import time
 import json
 from fastapi.concurrency import run_in_threadpool
 import asyncio

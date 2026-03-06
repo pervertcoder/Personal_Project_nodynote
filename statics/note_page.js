@@ -20,7 +20,7 @@ const checkState = async function () {
     const contentArray = JSON.parse(response.note[0][1]);
     const lines = contentArray.map((line) => line.text);
     note.value = lines.join("\n");
-    console.log("登入成功");
+    // console.log("登入成功");
   } else {
     window.location.href = "/dashboard";
   }
@@ -61,6 +61,7 @@ const saveFile = async function () {
 
 // save.addEventListener("click", saveFile);
 
+let lines2 = [];
 let previousLines = [];
 let lineVersions = [];
 // websocket連線
@@ -77,11 +78,23 @@ ws.onmessage = (event) => {
   if (data.type === "name") {
     note_name.value = data.name;
   } else if (data.type === "content") {
+    lines2 = data.content;
+    // console.log(lines2);
+    render(lines2);
     note.value = data.content.map((line) => line.text).join("\n");
     previousLines = note.value.split("\n");
     lineVersions = data.content.map((line) => line.version);
   } else if (data.type === "updated_line") {
     const { lineIndex, newText, version } = data.content;
+
+    const block = document.querySelector(`.block[data-index='${lineIndex}']`);
+    if (!block) return;
+    const currentText = block.innerText;
+
+    if (currentText !== newText) {
+      block.innerText = newText;
+    }
+    block.dataset.version = version;
 
     // 只更新該行
     const lines = note.value.split("\n");
@@ -91,7 +104,7 @@ ws.onmessage = (event) => {
     // 更新本地版本號，避免下一次發生衝突
     previousLines[lineIndex] = newText;
     lineVersions[lineIndex] = version;
-    console.log(lineVersions);
+    // console.log(lineVersions);
   }
 
   if (data.type === "conflict") {
@@ -148,3 +161,126 @@ note.addEventListener("input", () => {
   clearTimeout(contentTimeout);
   contentTimeout = setTimeout(diffLogic, 200);
 });
+
+const render = function (lines) {
+  let debouceTimer;
+  const editor = document.getElementById("editor");
+  editor.innerHTML = "";
+
+  lines.forEach((line, index) => {
+    const div = document.createElement("div");
+    div.className = "block";
+    div.contentEditable = true;
+    div.innerText = line.text;
+    div.dataset.index = index;
+    div.dataset.version = line.version;
+
+    editor.appendChild(div);
+  });
+
+  editor.addEventListener("input", (e) => {
+    const block = e.target;
+    const index = parseInt(block.dataset.index);
+
+    if (block.debouceTimer) clearTimeout(block.debouceTimer);
+
+    block.debouceTimer = setTimeout(() => {
+      const text = block.innerText;
+      const version = parseInt(block.dataset.version);
+      // console.log(version);
+      ws.send(
+        JSON.stringify({
+          type: "updated_line",
+          content: {
+            lineIndex: index,
+            newText: text,
+            version: version,
+          },
+        }),
+      );
+    }, 300);
+
+    editor.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const block = e.target;
+        const index = parseInt(block.dataset.index);
+        const text = block.innerText;
+
+        const cursorPos = window.getSelection().getRangeAt(0).startOffset;
+        const before = text.slice(0, cursorPos);
+        const after = text.slice(cursorPos);
+
+        block.innerText = before;
+
+        const newBlock = document.createElement("div");
+        newBlock.className = "block";
+        newBlock.contentEditable = true;
+        newBlock.innerText = after;
+        newBlock.dataset.index = index + 1;
+        newBlock.dataset.version = 0;
+
+        block.after(newBlock);
+        newBlock.focus();
+
+        const blocks = document.querySelectorAll(".block");
+        blocks.forEach((b, i) => (b.dataset.index = i));
+
+        ws.send(
+          JSON.stringify({
+            type: "updated_line",
+            content: {
+              lineIndex: index,
+              newText: before,
+              version: parseInt(block.dataset.version),
+            },
+          }),
+        );
+      }
+    });
+
+    editor.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace") {
+        const block = e.target;
+        const index = parseInt(block.dataset.index);
+        const selection = window.getSelection();
+        const cursorPos = selection.getRangeAt(0).startOffset;
+
+        if (cursorPos === 0 && index > 0) {
+          e.preventDefault();
+          const prev = editor.querySelector(
+            `.block[data-index='${index - 1}']`,
+          );
+          const newText = prev.innerText + block.innerText;
+          prev.innerText = newText;
+          prev.focus();
+
+          const range = document.createRange();
+          range.setStart(
+            prev.firstChild || prev,
+            prev.innerText.length - block.innerText.length,
+          );
+          range.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(range);
+
+          block.remove();
+
+          const blocks = editor.querySelectorAll(".block");
+          blocks.forEach((b, i) => (b.dataset.index = i));
+
+          ws.send(
+            JSON.stringify({
+              type: "updated_line",
+              content: {
+                lineIndex: index - 1,
+                newText: prev.innerText,
+                version: parseInt(prev.dataset.version),
+              },
+            }),
+          );
+        }
+      }
+    });
+  });
+};
