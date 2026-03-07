@@ -5,7 +5,7 @@ from auth.auth_func import User
 import jwt
 from env_settings.env import ALGORITHM, SECRET_KEY
 from db_control.db_controller import put_note_name, check_permission, update_note, render_note_data, delete_note, check_role, check_shared_user, add_permission
-from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response, note_render_data_response, note_delete, sharedNoteRequest
+from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response, note_render_data_response, note_delete, sharedNoteRequest, sharedNoteResponse
 
 router = APIRouter(prefix="/api/note", tags=["note"])
 
@@ -146,8 +146,8 @@ def note_data_render (note_id, access_token : str = Cookie(None)):
         user_id = check_data[0][0]
         permission = check_permission(note_id, user_id)
         if check_data and permission[0][2] == "owner":
-            delete_note(note_id)
-            return note_delete(ok=True)
+            deleted_note_id = delete_note(note_id)
+            return note_delete(ok=True, note_id=deleted_note_id)
         return JSONResponse(status_code=403, content={
 			'error': True,
 			'message': '權限不足'
@@ -164,7 +164,7 @@ def note_data_render (note_id, access_token : str = Cookie(None)):
 			'message': 'Token 無效，請重新登入'
         })
     
-@router.post("/share_note/{note_id}", response_model=note_delete)
+@router.post("/share_note/{note_id}", response_model=sharedNoteResponse)
 def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(None)):
     if not access_token:
         raise HTTPException(status_code=401, detail="未登入")
@@ -179,7 +179,7 @@ def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(
         share_user_id = check_shared_user(request.email)
         if role == "owner" and share_user_id:
             add_permission(note_id, share_user_id)
-            return note_delete(ok=True)
+            return sharedNoteResponse(ok=True)
         return JSONResponse(status_code=403, content={
 			'error': True,
 			'message': '權限不足'

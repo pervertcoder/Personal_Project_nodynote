@@ -117,6 +117,43 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                             "serverVersion": server_line["version"]
                         }
                     })
+            elif msg_type == "insert_line":
+                index = content["lineIndex"]
+                text = content["text"]
+                if text.strip() == "":
+                    continue
+
+                note = active_notes[note_id]
+                note["content"].insert(index, {
+                    "text" : text,
+                    "version" : 0
+                })
+
+                for conn in note["connection"]:
+                    await conn.send_json({
+                        "type" : "insert_line",
+                        "content" : {
+                            "lineIndex" : index,
+                            "text" : text,
+                            "version" : 0
+                        }
+                    })
+            elif msg_type == "delete_line":
+                index = content["lineIndex"]
+
+                note = active_notes[note_id]
+
+                if index < len(note["content"]):
+                    note["content"].pop(index)
+                
+                for conn in note["connection"]:
+                    await conn.send_json({
+                        "type" : "delete_line",
+                        "content" : {
+                            "lineIndex" : index
+                        }
+                    })
+                    pass
     except WebSocketDisconnect:
         print("使用者斷線")
     finally:

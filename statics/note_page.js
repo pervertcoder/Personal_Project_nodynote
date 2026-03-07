@@ -79,7 +79,7 @@ ws.onmessage = (event) => {
     note_name.value = data.name;
   } else if (data.type === "content") {
     lines2 = data.content;
-    // console.log(lines2);
+    // const filterLines = lines2.filter((line2) => line2.trim() !== "");
     render(lines2);
     note.value = data.content.map((line) => line.text).join("\n");
     previousLines = note.value.split("\n");
@@ -105,6 +105,39 @@ ws.onmessage = (event) => {
     previousLines[lineIndex] = newText;
     lineVersions[lineIndex] = version;
     // console.log(lineVersions);
+  } else if (data.type === "insert_line") {
+    const { lineIndex, text, version } = data.content;
+
+    const editor = document.getElementById("editor");
+
+    const div = document.createElement("div");
+    div.className = "block";
+    div.contentEditable = true;
+    div.innerText = text;
+    div.dataset.index = lineIndex;
+    div.dataset.version = version;
+
+    const ref = editor.querySelector(`.block[data-index='${lineIndex}']`);
+
+    if (ref) {
+      editor.insertBefore(div, ref);
+    } else {
+      editor.appendChild(div);
+    }
+
+    const block = editor.querySelectorAll(".block");
+    block.forEach((b, i) => (b.dataset.index = i));
+
+    // newBlock.focus();
+  } else if (data.type === "delete_line") {
+    const { lineIndex } = data.content;
+
+    const block = document.querySelector(`.block[data-index='${lineIndex}']`);
+    if (block) block.remove();
+
+    const editor = document.getElementById("editor");
+    const blocks = editor.querySelectorAll(".block");
+    blocks.forEach((b, i) => (b.dataset.index = i));
   }
 
   if (data.type === "conflict") {
@@ -177,110 +210,116 @@ const render = function (lines) {
 
     editor.appendChild(div);
   });
+};
 
-  editor.addEventListener("input", (e) => {
-    const block = e.target;
+editor.addEventListener("input", (e) => {
+  const block = e.target;
+  const index = parseInt(block.dataset.index);
+
+  if (block.debouceTimer) clearTimeout(block.debouceTimer);
+
+  block.debouceTimer = setTimeout(() => {
+    const text = block.innerText;
+    const version = parseInt(block.dataset.version);
+    // console.log(version);
+    ws.send(
+      JSON.stringify({
+        type: "updated_line",
+        content: {
+          lineIndex: index,
+          newText: text,
+          version: version,
+        },
+      }),
+    );
+  }, 300);
+});
+
+editor.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const block = e.target.closest(".block");
+    if (!block) return;
     const index = parseInt(block.dataset.index);
+    const text = block.innerText;
 
-    if (block.debouceTimer) clearTimeout(block.debouceTimer);
+    const cursorPos = window.getSelection().getRangeAt(0).startOffset;
+    const before = text.slice(0, cursorPos);
+    const after = text.slice(cursorPos);
+    const afterText = after.trim() === "" ? "" : after;
 
-    block.debouceTimer = setTimeout(() => {
-      const text = block.innerText;
-      const version = parseInt(block.dataset.version);
-      // console.log(version);
+    block.innerText = before;
+
+    const newBlock = document.createElement("div");
+    newBlock.className = "block";
+    newBlock.contentEditable = true;
+    newBlock.innerText = after;
+    newBlock.dataset.index = index + 1;
+    newBlock.dataset.version = 0;
+
+    block.after(newBlock);
+    newBlock.focus();
+
+    const blocks = editor.querySelectorAll(".block");
+    blocks.forEach((b, i) => (b.dataset.index = i));
+
+    ws.send(
+      JSON.stringify({
+        type: "updated_line",
+        content: {
+          lineIndex: index,
+          newText: before,
+          version: parseInt(block.dataset.version),
+        },
+      }),
+    );
+
+    ws.send(
+      JSON.stringify({
+        type: "insert_line",
+        content: {
+          lineIndex: index + 1,
+          text: afterText,
+        },
+      }),
+    );
+  }
+});
+
+editor.addEventListener("keydown", (e) => {
+  if (e.key === "Backspace") {
+    const block = e.target.closest(".block");
+    if (!block) return;
+    const index = parseInt(block.dataset.index);
+    const selection = window.getSelection();
+    const cursorPos = selection.getRangeAt(0).startOffset;
+
+    if (cursorPos === 0 && index > 0) {
+      e.preventDefault();
+      const prev = editor.querySelector(`.block[data-index='${index - 1}']`);
+      const newText = prev.innerText + block.innerText;
+      prev.innerText = newText;
+      prev.focus();
+
+      const range = document.createRange();
+      range.selectNodeContents(prev);
+      range.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(range);
+
+      block.remove();
+
+      const blocks = editor.querySelectorAll(".block");
+      blocks.forEach((b, i) => (b.dataset.index = i));
+
       ws.send(
         JSON.stringify({
-          type: "updated_line",
+          type: "delete_line",
           content: {
             lineIndex: index,
-            newText: text,
-            version: version,
           },
         }),
       );
-    }, 300);
-
-    editor.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const block = e.target;
-        const index = parseInt(block.dataset.index);
-        const text = block.innerText;
-
-        const cursorPos = window.getSelection().getRangeAt(0).startOffset;
-        const before = text.slice(0, cursorPos);
-        const after = text.slice(cursorPos);
-
-        block.innerText = before;
-
-        const newBlock = document.createElement("div");
-        newBlock.className = "block";
-        newBlock.contentEditable = true;
-        newBlock.innerText = after;
-        newBlock.dataset.index = index + 1;
-        newBlock.dataset.version = 0;
-
-        block.after(newBlock);
-        newBlock.focus();
-
-        const blocks = document.querySelectorAll(".block");
-        blocks.forEach((b, i) => (b.dataset.index = i));
-
-        ws.send(
-          JSON.stringify({
-            type: "updated_line",
-            content: {
-              lineIndex: index,
-              newText: before,
-              version: parseInt(block.dataset.version),
-            },
-          }),
-        );
-      }
-    });
-
-    editor.addEventListener("keydown", (e) => {
-      if (e.key === "Backspace") {
-        const block = e.target;
-        const index = parseInt(block.dataset.index);
-        const selection = window.getSelection();
-        const cursorPos = selection.getRangeAt(0).startOffset;
-
-        if (cursorPos === 0 && index > 0) {
-          e.preventDefault();
-          const prev = editor.querySelector(
-            `.block[data-index='${index - 1}']`,
-          );
-          const newText = prev.innerText + block.innerText;
-          prev.innerText = newText;
-          prev.focus();
-
-          const range = document.createRange();
-          range.setStart(
-            prev.firstChild || prev,
-            prev.innerText.length - block.innerText.length,
-          );
-          range.collapse(true);
-          selection.removeAllRanges();
-          selection.addRange(range);
-
-          block.remove();
-
-          const blocks = editor.querySelectorAll(".block");
-          blocks.forEach((b, i) => (b.dataset.index = i));
-
-          ws.send(
-            JSON.stringify({
-              type: "updated_line",
-              content: {
-                lineIndex: index - 1,
-                newText: prev.innerText,
-                version: parseInt(prev.dataset.version),
-              },
-            }),
-          );
-        }
-      }
-    });
-  });
-};
+    }
+  }
+});

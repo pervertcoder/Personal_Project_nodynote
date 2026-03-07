@@ -146,6 +146,7 @@ def delete_note(note_id:str):
     mycursor.close()
     conn.close()
     print("data deleted successfully")
+    return note_id
 
 # 驗證role
 def check_role(note_id:str, user_id:int):

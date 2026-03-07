@@ -124,7 +124,7 @@ const renderDomSelf = function (data) {
     permissionBtn.setAttribute("data-permission", `permissionBtn${data[i][0]}`);
     permissionBtn.textContent = "分享權限";
     const deleteBtn = document.createElement("button");
-    deleteBtn.classList.add("noteBtn");
+    deleteBtn.classList.add("delete_btn");
     deleteBtn.setAttribute("data-delete", `deleteBtn${data[i][0]}`);
     deleteBtn.textContent = "刪除";
 
@@ -143,7 +143,10 @@ const renderDomSelf = function (data) {
     });
 
     // 刪除筆記資料
-    deleteBtn.addEventListener("click", async () => {
+    deleteBtn.addEventListener("click", async (e) => {
+      if (e.target.classList.contains("delete_btn")) {
+        e.stopPropagation();
+      }
       const note_id = deleteBtn.dataset.delete.slice(9);
       const url = `/api/note/note_delete/${note_id}`;
       const request = await fetch(url, {
@@ -154,7 +157,13 @@ const renderDomSelf = function (data) {
       const response = await request.json();
       console.log(response);
 
-      window.location.reload();
+      if (response.note_id) {
+        const removeTarget = document.querySelector(
+          `[data-noteid="note${response.note_id}"]`,
+        );
+        removeTarget?.remove();
+      }
+      // window.location.reload();
     });
   }
 };

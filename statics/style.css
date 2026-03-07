@@ -76,7 +76,8 @@ button {
   padding: 10px;
 }
 
-.noteBtn {
+.noteBtn,
+.delete_btn {
   margin-right: 20px;
 }
 
