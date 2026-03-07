@@ -141,8 +141,23 @@ ws.onmessage = (event) => {
   }
 
   if (data.type === "conflict") {
-    alert(`第${data.content.lineIndex + 1}行衝突，請手動合併`);
-    return;
+    // alert(`第${data.content.lineIndex + 1}行衝突`);
+    const { lineIndex, serverText, serverVersion } = data.content;
+    const block = document.querySelector(`.block[data-index='${lineIndex}']`);
+    if (!block) return;
+
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    const cursorOffset = range.startOffset;
+
+    block.innerText = serverText;
+    block.dataset.version = serverVersion;
+
+    const newRange = document.createRange();
+    const pos = Math.min(cursorOffset || block, pos);
+    newRange.collapse(true);
+    selection.removeAllRanges();
+    selection.addRange(newRange);
   }
 };
 
@@ -290,23 +305,15 @@ editor.addEventListener("keydown", (e) => {
   if (e.key === "Backspace") {
     const block = e.target.closest(".block");
     if (!block) return;
+
     const index = parseInt(block.dataset.index);
     const selection = window.getSelection();
     const cursorPos = selection.getRangeAt(0).startOffset;
 
     if (cursorPos === 0 && index > 0) {
       e.preventDefault();
-      const prev = editor.querySelector(`.block[data-index='${index - 1}']`);
-      const newText = prev.innerText + block.innerText;
-      prev.innerText = newText;
-      prev.focus();
 
-      const range = document.createRange();
-      range.selectNodeContents(prev);
-      range.collapse(false);
-      selection.removeAllRanges();
-      selection.addRange(range);
-
+      const next = editor.querySelector(`.block[data-index='${index + 1}']`);
       block.remove();
 
       const blocks = editor.querySelectorAll(".block");
@@ -320,6 +327,23 @@ editor.addEventListener("keydown", (e) => {
           },
         }),
       );
+
+      if (next) {
+        next.focus();
+        const range = document.createRange();
+        range.setStart(next.firstChild || next, 0);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      } else if (index > 0) {
+        const prev = editor.querySelector(`.block[data-index='${index - 1}']`);
+        prev.focus();
+        const range = document.createRange();
+        range.setStart(prev.firstChild || prev, prev.innerText.length);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
     }
   }
 });
