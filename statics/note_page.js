@@ -117,18 +117,16 @@ ws.onmessage = (event) => {
     div.dataset.index = lineIndex;
     div.dataset.version = version;
 
-    const ref = editor.querySelector(`.block[data-index='${lineIndex}']`);
+    const blocks = editor.querySelectorAll(".block");
 
-    if (ref) {
-      editor.insertBefore(div, ref);
-    } else {
+    if (lineIndex >= blocks.length) {
       editor.appendChild(div);
+    } else {
+      editor.insertBefore(div, blocks[lineIndex]);
     }
 
-    const block = editor.querySelectorAll(".block");
-    block.forEach((b, i) => (b.dataset.index = i));
-
-    // newBlock.focus();
+    const allBlocks = editor.querySelectorAll(".block");
+    allBlocks.forEach((b, i) => (b.dataset.index = i));
   } else if (data.type === "delete_line") {
     const { lineIndex } = data.content;
 
@@ -147,6 +145,7 @@ ws.onmessage = (event) => {
     if (!block) return;
 
     const selection = window.getSelection();
+    if (!selection.rangeCount) return;
     const range = selection.getRangeAt(0);
     const cursorOffset = range.startOffset;
 
@@ -154,8 +153,13 @@ ws.onmessage = (event) => {
     block.dataset.version = serverVersion;
 
     const newRange = document.createRange();
-    const pos = Math.min(cursorOffset || block, pos);
+    const node = block.firstChild || block;
+
+    const pos = Math.min(cursorOffset, node.textContent.length);
+
+    newRange.setStart(node, pos);
     newRange.collapse(true);
+
     selection.removeAllRanges();
     selection.addRange(newRange);
   }
@@ -211,7 +215,6 @@ note.addEventListener("input", () => {
 });
 
 const render = function (lines) {
-  let debouceTimer;
   const editor = document.getElementById("editor");
   editor.innerHTML = "";
 
@@ -227,13 +230,15 @@ const render = function (lines) {
   });
 };
 
+const debouceTimers = {};
 editor.addEventListener("input", (e) => {
-  const block = e.target;
+  const block = e.target.closest(".block");
   const index = parseInt(block.dataset.index);
+  if (!block) return;
 
-  if (block.debouceTimer) clearTimeout(block.debouceTimer);
+  clearTimeout(debouceTimers[index]);
 
-  block.debouceTimer = setTimeout(() => {
+  debouceTimers[index] = setTimeout(() => {
     const text = block.innerText;
     const version = parseInt(block.dataset.version);
     // console.log(version);
@@ -275,9 +280,6 @@ editor.addEventListener("keydown", (e) => {
     block.after(newBlock);
     newBlock.focus();
 
-    const blocks = editor.querySelectorAll(".block");
-    blocks.forEach((b, i) => (b.dataset.index = i));
-
     ws.send(
       JSON.stringify({
         type: "updated_line",
@@ -298,6 +300,9 @@ editor.addEventListener("keydown", (e) => {
         },
       }),
     );
+
+    const blocks = editor.querySelectorAll(".block");
+    blocks.forEach((b, i) => (b.dataset.index = i));
   }
 });
 

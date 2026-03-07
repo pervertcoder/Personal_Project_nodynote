@@ -60,7 +60,7 @@ label {
   margin-top: 10px;
   display: flex;
   justify-content: end;
-  /* display: none; */
+  display: none;
 }
 
 #save {
@@ -70,6 +70,7 @@ label {
 #editor {
   margin-top: 20px;
   width: 80%;
+  height: 100vh;
   padding: 10px;
 }
 

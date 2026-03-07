@@ -120,8 +120,8 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
             elif msg_type == "insert_line":
                 index = content["lineIndex"]
                 text = content["text"]
-                if text.strip() == "":
-                    continue
+                # if text.strip() == "":
+                #     continue
 
                 note = active_notes[note_id]
                 note["content"].insert(index, {
