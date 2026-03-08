@@ -1,14 +1,14 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi import Response, Cookie, HTTPException
-from api_class.api_class import registRequest, loginRequest, authResponse, loginResponse, errorResponse, logoutResponse
+from api_class.api_class import registRequest, loginRequest, authResponse, loginResponse, errorResponse, logoutResponse, registResponse
 from auth.auth_func import User, create_jwt
 import jwt
 from env_settings.env import ALGORITHM, SECRET_KEY
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
-@router.post("/regist", response_model=authResponse, responses={400:{'model' : errorResponse, 'description' : '註冊失敗，重複的 Email 或其他原因'}, 500: {'model' : errorResponse, 'description' : '伺服器內部錯誤'}})
+@router.post("/regist", response_model=registResponse, responses={400:{'model' : errorResponse, 'description' : '註冊失敗，重複的 Email 或其他原因'}, 500: {'model' : errorResponse, 'description' : '伺服器內部錯誤'}})
 def register(request:registRequest):
     email = request.email
     user_name = request.user_name
@@ -16,7 +16,7 @@ def register(request:registRequest):
     check_data = user.get_user_data()
     if check_data == []:
         user.write_user_data(user_name=user_name, user_email=request.email, user_password=request.password)
-        return authResponse(ok=True)
+        return registResponse(ok=True)
     else:
         return JSONResponse(status_code=409,content={
             'error' : True,

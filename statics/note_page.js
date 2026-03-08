@@ -62,15 +62,16 @@ const saveFile = async function () {
 // save.addEventListener("click", saveFile);
 
 let lines2 = [];
-let previousLines = [];
-let lineVersions = [];
+// let previousLines = [];
+// let lineVersions = [];
 // websocket連線
 const websocketLink = window.location.hostname;
 const ws = new WebSocket(`ws://${websocketLink}:8000/ws/note/${id}`);
 ws.onopen = () => {
   console.log("websocket已連線");
 };
-
+const selfInsertIndex = new Set();
+const selfDeleteIndex = new Set();
 ws.onmessage = (event) => {
   const data = JSON.parse(event.data);
   // console.log(data);
@@ -81,33 +82,33 @@ ws.onmessage = (event) => {
     lines2 = data.content;
     // const filterLines = lines2.filter((line2) => line2.trim() !== "");
     render(lines2);
-    note.value = data.content.map((line) => line.text).join("\n");
-    previousLines = note.value.split("\n");
-    lineVersions = data.content.map((line) => line.version);
   } else if (data.type === "updated_line") {
     const { lineIndex, newText, version } = data.content;
 
-    const block = document.querySelector(`.block[data-index='${lineIndex}']`);
-    if (!block) return;
+    let block = document.querySelector(`.block[data-index='${lineIndex}']`);
+    if (!block) {
+      const editor = document.getElementById("editor");
+
+      block = document.createElement("div");
+      block.className = "block";
+      block.contentEditable = true;
+      block.dataset.index = lineIndex;
+      block.dataset.version = version;
+
+      editor.appendChild(block);
+    }
     const currentText = block.innerText;
 
     if (currentText !== newText) {
       block.innerText = newText;
     }
     block.dataset.version = version;
-
-    // 只更新該行
-    const lines = note.value.split("\n");
-    lines[lineIndex] = newText;
-    note.value = lines.join("\n");
-
-    // 更新本地版本號，避免下一次發生衝突
-    previousLines[lineIndex] = newText;
-    lineVersions[lineIndex] = version;
-    // console.log(lineVersions);
   } else if (data.type === "insert_line") {
     const { lineIndex, text, version } = data.content;
-
+    if (selfInsertIndex.has(lineIndex)) {
+      selfInsertIndex.delete(lineIndex);
+      return;
+    }
     const editor = document.getElementById("editor");
 
     const div = document.createElement("div");
@@ -129,6 +130,11 @@ ws.onmessage = (event) => {
     allBlocks.forEach((b, i) => (b.dataset.index = i));
   } else if (data.type === "delete_line") {
     const { lineIndex } = data.content;
+
+    if (selfDeleteIndex.has(lineIndex)) {
+      selfDeleteIndex.delete(lineIndex);
+      return;
+    }
 
     const block = document.querySelector(`.block[data-index='${lineIndex}']`);
     if (block) block.remove();
@@ -290,7 +296,7 @@ editor.addEventListener("keydown", (e) => {
         },
       }),
     );
-
+    selfInsertIndex.add(index + 1);
     ws.send(
       JSON.stringify({
         type: "insert_line",
@@ -323,7 +329,7 @@ editor.addEventListener("keydown", (e) => {
 
       const blocks = editor.querySelectorAll(".block");
       blocks.forEach((b, i) => (b.dataset.index = i));
-
+      selfDeleteIndex.add(index);
       ws.send(
         JSON.stringify({
           type: "delete_line",

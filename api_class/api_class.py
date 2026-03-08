@@ -5,6 +5,9 @@ class registRequest(BaseModel):
     email : str
     password : str
 
+class registResponse(BaseModel):
+    ok : bool
+
 class loginRequest(BaseModel):
     email : str
     password : str
