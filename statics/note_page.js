@@ -100,8 +100,8 @@ ws.onmessage = (event) => {
     const currentText = block.innerText;
 
     if (currentText !== newText) {
-      // block.innerText = newText;
-      block.innerText = `${lineIndex + 1}. ${newText}`;
+      block.innerText = newText;
+      // block.innerText = `${lineIndex + 1}. ${newText}`;
     }
     block.dataset.version = version;
   } else if (data.type === "insert_line") {

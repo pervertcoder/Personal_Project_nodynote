@@ -252,7 +252,7 @@ sharednote.addEventListener("click", async () => {
 
 // 登出
 const logout = document.getElementById("logout");
-logout.addEventListener("click", async () => {
+logout.addEventListener("click", async (e) => {
   e.stopPropagation();
   window.location.href = "/";
   const url = "/api/auth/logout";
