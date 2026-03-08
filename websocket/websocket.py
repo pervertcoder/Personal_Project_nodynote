@@ -97,17 +97,25 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                 if client_version == server_line["version"]:
                     server_line["text"] = new_text
                     server_line["version"] += 1
+
+                    await websocket.send_json({
+                        "type" : "ack",
+                        "content" : {
+                            "lineIndex" : line_index,
+                            "version" : server_line["version"]
+                        }
+                    })
             
                     for conn in note["connection"]:
-                        # if conn != websocket:
-                        await conn.send_json({
-                            "type" : "updated_line",
-                            "content" : {
-                                "lineIndex" : line_index,
-                                "newText" : new_text,
-                                "version" : server_line["version"]
-                            }
-                        })
+                        if conn != websocket:
+                            await conn.send_json({
+                                "type" : "updated_line",
+                                "content" : {
+                                    "lineIndex" : line_index,
+                                    "newText" : new_text,
+                                    "version" : server_line["version"]
+                                }
+                            })
                 else:
                     await websocket.send_json({
                         "type" : "conflict",
@@ -128,16 +136,24 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                     "text" : text,
                     "version" : 0
                 })
+                
+                await websocket.send_json({
+                    "type" : "ack_insert",
+                    "content" : {
+                        "lineIndex" : index
+                    }
+                })
 
                 for conn in note["connection"]:
-                    await conn.send_json({
-                        "type" : "insert_line",
-                        "content" : {
-                            "lineIndex" : index,
-                            "text" : text,
-                            "version" : 0
-                        }
-                    })
+                    if conn != websocket:
+                        await conn.send_json({
+                            "type" : "insert_line",
+                            "content" : {
+                                "lineIndex" : index,
+                                "text" : text,
+                                "version" : 0
+                            }
+                        })
             elif msg_type == "delete_line":
                 index = content["lineIndex"]
 
@@ -146,14 +162,22 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                 if index < len(note["content"]):
                     note["content"].pop(index)
                 
+                await websocket.send_json({
+                    "type" : "ack_delete",
+                    "content" : {
+                        "lineIndex" : index
+                    }
+                })
+
                 for conn in note["connection"]:
-                    await conn.send_json({
-                        "type" : "delete_line",
-                        "content" : {
-                            "lineIndex" : index
-                        }
-                    })
-                    pass
+                    if conn != websocket:
+                        await conn.send_json({
+                            "type" : "delete_line",
+                            "content" : {
+                                "lineIndex" : index
+                            }
+                        })
+                    
     except WebSocketDisconnect:
         print("使用者斷線")
     finally:

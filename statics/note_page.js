@@ -61,10 +61,10 @@ const saveFile = async function () {
 
 // save.addEventListener("click", saveFile);
 
-let lines2 = [];
+// websocket連線
 // let previousLines = [];
 // let lineVersions = [];
-// websocket連線
+let lines2 = [];
 const websocketLink = window.location.hostname;
 const ws = new WebSocket(`ws://${websocketLink}:8000/ws/note/${id}`);
 ws.onopen = () => {
@@ -82,6 +82,15 @@ ws.onmessage = (event) => {
     lines2 = data.content;
     // const filterLines = lines2.filter((line2) => line2.trim() !== "");
     render(lines2);
+  } else if (data.type === "ack") {
+    const index = data.content.lineIndex;
+    const version = data.content.version;
+
+    const block = editor.querySelector(`.block[data-index='${index}']`);
+
+    if (block) {
+      block.dataset.version = version;
+    }
   } else if (data.type === "updated_line") {
     const { lineIndex, newText, version } = data.content;
 
@@ -291,7 +300,7 @@ editor.addEventListener("keydown", (e) => {
     const newBlock = document.createElement("div");
     newBlock.className = "block";
     newBlock.contentEditable = true;
-    newBlock.innerText = after;
+    newBlock.innerText = afterText;
     newBlock.dataset.index = index + 1;
     newBlock.dataset.version = 0;
 
