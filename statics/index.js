@@ -253,6 +253,8 @@ sharednote.addEventListener("click", async () => {
 // 登出
 const logout = document.getElementById("logout");
 logout.addEventListener("click", async () => {
+  e.stopPropagation();
+  window.location.href = "/";
   const url = "/api/auth/logout";
   const request = await fetch(url, {
     method: "POST",
@@ -260,9 +262,9 @@ logout.addEventListener("click", async () => {
   });
 
   const response = await request.json();
-  if (response.ok) {
-    window.location.reload();
-  }
+
+  // if (response.ok) {
+  // }
 });
 
 // 待優化：共享的筆記要顯示共享狀態

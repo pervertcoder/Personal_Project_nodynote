@@ -100,7 +100,8 @@ ws.onmessage = (event) => {
     const currentText = block.innerText;
 
     if (currentText !== newText) {
-      block.innerText = newText;
+      // block.innerText = newText;
+      block.innerText = `${lineIndex + 1}. ${newText}`;
     }
     block.dataset.version = version;
   } else if (data.type === "insert_line") {
@@ -115,6 +116,7 @@ ws.onmessage = (event) => {
     div.className = "block";
     div.contentEditable = true;
     div.innerText = text;
+    // div.innerText = `${lineIndex}. ${text}`;
     div.dataset.index = lineIndex;
     div.dataset.version = version;
 
@@ -229,10 +231,20 @@ const render = function (lines) {
     div.className = "block";
     div.contentEditable = true;
     div.innerText = line.text;
+    // div.innerText = `${index + 1}. ${line.text}`;
     div.dataset.index = index;
     div.dataset.version = line.version;
 
     editor.appendChild(div);
+  });
+};
+
+const refreshLineNum = function () {
+  const blocks = document.querySelectorAll(".block");
+  blocks.forEach((b, i) => {
+    const text = b.innerText.replace(/^\d+\.\s/, "");
+    b.innerText = `${i + 1}. ${text}`;
+    b.dataset.index = i;
   });
 };
 
@@ -285,6 +297,7 @@ editor.addEventListener("keydown", (e) => {
 
     block.after(newBlock);
     newBlock.focus();
+    // refreshLineNum();
 
     ws.send(
       JSON.stringify({
@@ -355,6 +368,7 @@ editor.addEventListener("keydown", (e) => {
         selection.removeAllRanges();
         selection.addRange(range);
       }
+      // refreshLineNum();
     }
   }
 });
