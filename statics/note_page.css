@@ -70,6 +70,7 @@ label {
 .editor-wrapper {
   width: 80%;
   display: flex;
+  position: relative;
 }
 
 #line__numbers {
@@ -84,6 +85,27 @@ label {
   width: 95%;
   height: 100vh;
   padding: 10px;
+  flex: 1;
+}
+
+#user-status-panel {
+  width: 60px;
+  padding-left: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.user-ball {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 10px;
+  margin: 2px 0;
 }
 
 .block {

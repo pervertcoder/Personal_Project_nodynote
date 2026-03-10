@@ -24,18 +24,18 @@ def get_current_user(access_token : str = Cookie(None)):
     user = User(user_email)
     check_data = user.get_user_data()
     if check_data:
-        user_id = check_data[0][0]
+        user_id = check_data[0]
         return user_id
     else:
         raise HTTPException(status_code=401, detail="Token 無效")
     
 def verify_note_permission(note_id : str, user = Depends(get_current_user)):
-    note = check_permission(note_id, user)
+    note = check_permission(note_id, user[0])
     if not note:
         raise HTTPException(status_code=401, detail="權限不足")
     answer = {
         "note" : note,
-        "user_id" : user
+        "user_info" : user
     }
     return answer
 
@@ -69,7 +69,7 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
         asyncio.create_task(save_DB(note_id))
     
     note_connection = active_notes[note_id]
-    user_id = user_permission["user_id"]
+    user_id = user_permission["user_info"][0]
     note_connection["connection"][websocket] = user_id
 
     # active_notes[note_id]["connection"].add(websocket)
@@ -191,7 +191,9 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                         })
             elif msg_type == "cursor_move":
                 line_index = content["lineIndex"]
-                user_id = user_permission["user_id"]
+                color = user_permission["user_info"][4]
+                user_id = user_permission["user_info"][0]
+                init = user_permission["user_info"][1][0]
 
                 note_connection = active_notes[note_id]
                 for conn in note_connection["connection"]:
@@ -200,7 +202,9 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                         "type" : "cursor_move",
                         "content" : {
                             "user_id" : user_id,
-                            "lineIndex" : line_index
+                            "lineIndex" : line_index,
+                            "color" : color,
+                            "init" : init
                         }
                     })
                     

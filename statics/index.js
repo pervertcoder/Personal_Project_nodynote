@@ -8,6 +8,7 @@ window.addEventListener("pageshow", (event) => {
 // JWT驗證
 const token = localStorage.getItem("JWTtoken");
 let userName = document.querySelector(".username");
+const userCircle = document.querySelector(".userCircle");
 // const userId = window.location.pathname.slice(11);
 const checkState = async function () {
   const url = "/api/auth/login";
@@ -21,6 +22,8 @@ const checkState = async function () {
 
   if (response.ok) {
     userName.textContent = response.member_data[0][1];
+    userCircle.textContent = response.member_data[0][1][0];
+    userCircle.style.backgroundColor = `${response.member_data[0][4]}`;
     console.log("登入成功");
   } else {
     window.location.href = "/";

@@ -30,9 +30,6 @@ checkState();
 // 到dashboard
 const nody = document.querySelector(".nody");
 nody.addEventListener("click", () => {
-  // setTimeout(() => {
-  //   window.location.href = "/dashboard";
-  // }, 500);
   window.location.href = "/dashboard";
 });
 
@@ -118,9 +115,31 @@ const highlightCurrentLine = function () {
   document.querySelectorAll(".line-number").forEach((el) => {
     el.classList.remove("active");
   });
-  Object.values(userLines).forEach((line) => {
-    const number = document.querySelector(`.line-number[data-index='${line}']`);
+  Object.values(userLines).forEach(({ lineIndex }) => {
+    const number = document.querySelector(
+      `.line-number[data-index='${lineIndex}']`,
+    );
     if (number) number.classList.add("active");
+  });
+};
+
+const updateUserStatus = function () {
+  const panel = document.getElementById("user-status-panel");
+  panel.innerHTML = "";
+
+  Object.values(userLines).forEach(({ lineIndex, color, initial }) => {
+    const ball = document.createElement("div");
+    ball.className = "user-ball";
+    ball.style.backgroundColor = color;
+    ball.innerText = `${initial}`;
+
+    const block = document.querySelector(`.block[data-index='${lineIndex}']`);
+    if (block) {
+      ball.style.position = "absolute";
+      ball.style.top = block.offsetTop + "px";
+      ball.style.right = "30px";
+      panel.appendChild(ball);
+    }
   });
 };
 
@@ -157,8 +176,13 @@ ws.onmessage = (event) => {
   } else if (data.type === "cursor_move") {
     const user_id = data.content.user_id;
     const lineIndex = data.content.lineIndex;
-    userLines[user_id] = lineIndex;
+    const color = data.content.color;
+    const initial = data.content.init;
+
+    userLines[user_id] = { lineIndex, color, initial };
+
     highlightCurrentLine();
+    updateUserStatus();
   } else if (data.type === "ack") {
     const index = data.content.lineIndex;
     const version = data.content.version;
@@ -475,4 +499,3 @@ editor.addEventListener("keydown", (e) => {
 
 editor.addEventListener("keyup", sendCursor);
 editor.addEventListener("click", sendCursor);
-// editor.addEventListener("keydown", sendCursor);
