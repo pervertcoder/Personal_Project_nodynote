@@ -60,7 +60,9 @@ const saveFile = async function () {
 };
 
 // save.addEventListener("click", saveFile);
-
+let myUserId = null;
+const userLines = {};
+let activeUsers = [];
 // 行數設定
 const refreshLineNumber = function () {
   const blocks = document.querySelectorAll(".block");
@@ -68,43 +70,64 @@ const refreshLineNumber = function () {
 
   lineNumbers.innerHTML = "";
 
-  blocks.forEach((_, i) => {
+  blocks.forEach((block, i) => {
+    block.dataset.index = i;
+
     const div = document.createElement("div");
+    div.className = "line-number";
+    div.classList.add("active");
+    div.dataset.index = i;
     div.innerText = i + 1;
     lineNumbers.appendChild(div);
   });
 };
 
-const userLines = {};
-const myId = "myself";
+// 鎖定游標位置
+const sendCursor = function () {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+  let node = selection.focusNode;
+  if (!node) return;
+
+  if (node.nodeType === node.TEXT_NODE) {
+    node = node.parentElement;
+  }
+  const block = node.classList.contains("block")
+    ? node
+    : node.closest(".block");
+  if (!block) return;
+
+  if (!block.firstChild) {
+    const textNode = document.createTextNode("");
+    block.appendChild(textNode);
+    node = textNode;
+  }
+  const lineIndex = parseInt(block.dataset.index);
+  ws.send(
+    JSON.stringify({
+      type: "cursor_move",
+      content: {
+        lineIndex: lineIndex,
+      },
+    }),
+  );
+};
 
 // 鎖定高亮hover
 const highlightCurrentLine = function () {
-  const selection = window.getSelection();
-  if (!selection.rangeCount) return;
-
-  const node = selection.anchorNode;
-  if (!node) return;
-
-  const block = node.closest ? node.closest(".block") : null;
-  if (!block) return;
-
-  const index = parseInt(block.dataset.index);
-  userLines[myId] = index;
-
-  const lineNumbers = document.getElementById("line__numbers").children;
-  for (let i = 0; i < lineNumbers.length; i++) {
-    if (i === index) {
-      lineNumbers[i].classList.add("active");
-    } else {
-      lineNumbers[i].classList.remove("active");
-    }
-  }
+  document.querySelectorAll(".line-number").forEach((el) => {
+    el.classList.remove("active");
+  });
+  Object.values(userLines).forEach((line) => {
+    const number = document.querySelector(`.line-number[data-index='${line}']`);
+    if (number) number.classList.add("active");
+  });
 };
 
 // websocket連線
 // let previousLines = [];
 // let lineVersions = [];
+
 let lines2 = [];
 const websocketLink = window.location.hostname;
 const ws = new WebSocket(`ws://${websocketLink}:8000/ws/note/${id}`);
@@ -120,9 +143,22 @@ ws.onmessage = (event) => {
   if (data.type === "name") {
     note_name.value = data.name;
   } else if (data.type === "content") {
+    activeUsers = data.activeUsers;
+    console.log(activeUsers);
     lines2 = data.content;
     render(lines2);
     refreshLineNumber();
+  } else if (data.type === "user_join") {
+    activeUsers.push(data.user_id);
+    console.log("使用者加入:", data.user_id);
+  } else if (data.type === "user_leave") {
+    activeUsers = activeUsers.filter((id) => id !== data.user_id);
+    console.log("使用者離開:", data.user_id);
+  } else if (data.type === "cursor_move") {
+    const user_id = data.content.user_id;
+    const lineIndex = data.content.lineIndex;
+    userLines[user_id] = lineIndex;
+    highlightCurrentLine();
   } else if (data.type === "ack") {
     const index = data.content.lineIndex;
     const version = data.content.version;
@@ -343,13 +379,22 @@ editor.addEventListener("keydown", (e) => {
     const newBlock = document.createElement("div");
     newBlock.className = "block";
     newBlock.contentEditable = true;
-    newBlock.innerText = afterText;
+    newBlock.innerText = afterText || " ";
     newBlock.dataset.index = index + 1;
     newBlock.dataset.version = 0;
 
     block.after(newBlock);
     newBlock.focus();
-    // refreshLineNum();
+
+    const range = document.createRange();
+    range.setStart(newBlock.firstChild || newBlock, 0);
+    range.collapse(true);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+
+    sendCursor();
+    highlightCurrentLine();
 
     ws.send(
       JSON.stringify({
@@ -421,7 +466,13 @@ editor.addEventListener("keydown", (e) => {
         selection.removeAllRanges();
         selection.addRange(range);
       }
+      sendCursor();
+      highlightCurrentLine();
       refreshLineNumber();
     }
   }
 });
+
+editor.addEventListener("keyup", sendCursor);
+editor.addEventListener("click", sendCursor);
+// editor.addEventListener("keydown", sendCursor);

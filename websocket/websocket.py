@@ -65,16 +65,28 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
         except json.JSONDecodeError:
             lines = [{"text": raw_content, "version": 0}]
 
-        active_notes[note_id] = {"name": notes[0][1], "content" : lines, "connection" : set()}
+        active_notes[note_id] = {"name": notes[0][1], "content" : lines, "connection" : {}}
         asyncio.create_task(save_DB(note_id))
     
-    active_notes[note_id]["connection"].add(websocket)
+    note_connection = active_notes[note_id]
+    user_id = user_permission["user_id"]
+    note_connection["connection"][websocket] = user_id
+
+    # active_notes[note_id]["connection"].add(websocket)
     
     await websocket.send_json({
         "type" : "content",
-        "name" : active_notes[note_id]["name"],
-        "content" : active_notes[note_id]["content"]
+        "name" : note_connection["name"],
+        "content" : note_connection["content"],
+        "activeUsers" : list(note_connection["connection"].values())
     })
+
+    for conn in note_connection["connection"]:
+        if conn != websocket:
+            await conn.send_json({
+                "type" : "user_join",
+                "user_id" : user_id
+            })
     
     try:
         while True:
@@ -177,15 +189,37 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                                 "lineIndex" : index
                             }
                         })
+            elif msg_type == "cursor_move":
+                line_index = content["lineIndex"]
+                user_id = user_permission["user_id"]
+
+                note_connection = active_notes[note_id]
+                for conn in note_connection["connection"]:
+                    # if conn != websocket:
+                    await conn.send_json({
+                        "type" : "cursor_move",
+                        "content" : {
+                            "user_id" : user_id,
+                            "lineIndex" : line_index
+                        }
+                    })
                     
     except WebSocketDisconnect:
         print("使用者斷線")
     finally:
         note = active_notes.get(note_id)
         if note:
-            active_notes[note_id]["connection"].discard(websocket)
+            connections = note["connection"]
+            user_id = connections.pop(websocket, None)
+            if user_id:
+                for conn in connections:
+                    await conn.send_json({
+                        "type" : "user_leave",
+                        "user_id" : user_id
+                    })
+            # active_notes[note_id]["connection"].discard(websocket)
 
-            if len(active_notes[note_id]["connection"]) == 0:
+            if len(connections) == 0:
                 print("最後一人離開，存檔")
                 note = active_notes[note_id]
                 for line in note["content"]:
