@@ -61,6 +61,47 @@ const saveFile = async function () {
 
 // save.addEventListener("click", saveFile);
 
+// 行數設定
+const refreshLineNumber = function () {
+  const blocks = document.querySelectorAll(".block");
+  const lineNumbers = document.getElementById("line__numbers");
+
+  lineNumbers.innerHTML = "";
+
+  blocks.forEach((_, i) => {
+    const div = document.createElement("div");
+    div.innerText = i + 1;
+    lineNumbers.appendChild(div);
+  });
+};
+
+const userLines = {};
+const myId = "myself";
+
+// 鎖定高亮hover
+const highlightCurrentLine = function () {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+
+  const node = selection.anchorNode;
+  if (!node) return;
+
+  const block = node.closest ? node.closest(".block") : null;
+  if (!block) return;
+
+  const index = parseInt(block.dataset.index);
+  userLines[myId] = index;
+
+  const lineNumbers = document.getElementById("line__numbers").children;
+  for (let i = 0; i < lineNumbers.length; i++) {
+    if (i === index) {
+      lineNumbers[i].classList.add("active");
+    } else {
+      lineNumbers[i].classList.remove("active");
+    }
+  }
+};
+
 // websocket連線
 // let previousLines = [];
 // let lineVersions = [];
@@ -80,8 +121,8 @@ ws.onmessage = (event) => {
     note_name.value = data.name;
   } else if (data.type === "content") {
     lines2 = data.content;
-    // const filterLines = lines2.filter((line2) => line2.trim() !== "");
     render(lines2);
+    refreshLineNumber();
   } else if (data.type === "ack") {
     const index = data.content.lineIndex;
     const version = data.content.version;
@@ -139,6 +180,7 @@ ws.onmessage = (event) => {
 
     const allBlocks = editor.querySelectorAll(".block");
     allBlocks.forEach((b, i) => (b.dataset.index = i));
+    refreshLineNumber();
   } else if (data.type === "delete_line") {
     const { lineIndex } = data.content;
 
@@ -153,6 +195,7 @@ ws.onmessage = (event) => {
     const editor = document.getElementById("editor");
     const blocks = editor.querySelectorAll(".block");
     blocks.forEach((b, i) => (b.dataset.index = i));
+    refreshLineNumber();
   }
 
   if (data.type === "conflict") {
@@ -331,6 +374,7 @@ editor.addEventListener("keydown", (e) => {
 
     const blocks = editor.querySelectorAll(".block");
     blocks.forEach((b, i) => (b.dataset.index = i));
+    refreshLineNumber();
   }
 });
 
@@ -377,7 +421,7 @@ editor.addEventListener("keydown", (e) => {
         selection.removeAllRanges();
         selection.addRange(range);
       }
-      // refreshLineNum();
+      refreshLineNumber();
     }
   }
 });
