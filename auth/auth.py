@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi import Response, Cookie, HTTPException
-from api_class.api_class import registRequest, loginRequest, authResponse, loginResponse, errorResponse, logoutResponse, registResponse
+from api_class.api_class import registRequest, loginRequest, authResponse, loginResponse, errorResponse, logoutResponse, registResponse, colorUpdateResponse, colorUpdateResquest
 from auth.auth_func import User, create_jwt
 import jwt
 from env_settings.env import ALGORITHM, SECRET_KEY
@@ -73,6 +73,16 @@ def get_user_data(access_token:str = Cookie(None)):
 			'error': True,
 			'message': 'Token 無效，請重新登入'
         })
+    
+@router.post("/color", response_model=colorUpdateResponse)
+def color_updating(request:colorUpdateResquest):
+    email = request.user_email
+    color = request.color
+    user = User(email)
+    check_data = user.get_user_data()
+    user_id = check_data[0][0]
+    user.color_edit(user_id, color)
+    return colorUpdateResponse(ok=True)
     
 @router.post("/logout")
 def logout(response:Response):

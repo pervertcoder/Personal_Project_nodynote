@@ -1,7 +1,7 @@
 import jwt
 from datetime import datetime, timedelta, timezone
 from env_settings.env import ALGORITHM, SECRET_KEY
-from db_control.db_controller import write_data, get_member_data
+from db_control.db_controller import write_data, get_member_data, color_updated
 
 class User:
 	def __init__(self, email):
@@ -15,6 +15,10 @@ class User:
 	def get_user_data(self):
 		result = get_member_data(self.email)
 		return result
+	
+	# 更新顏色
+	def color_edit(self, user_id, color):
+		color_updated(user_id, color)
 	
 	
 # 會員驗證

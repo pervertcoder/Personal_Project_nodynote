@@ -184,3 +184,15 @@ def add_permission(note_id:str, user_id:int):
     mycursor.close()
     conn.close()
     print("permission updated")
+
+# 更改顏色
+def color_updated(user_id:int, color:str):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "update member set color = %s where id = %s"
+    param = (color, user_id)
+    mycursor.execute(sql, param)
+    conn.commit()
+    mycursor.close()
+    conn.close()
+    print("color updated successfully")

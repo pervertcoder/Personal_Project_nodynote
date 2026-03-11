@@ -11,11 +11,24 @@
   </head>
   <body>
     <div class="topbar">
-      <div class="nody"><p class="nodynote">NodyNote</p></div>
+      <div class="nody">
+        <p class="nodynote">NodyNote</p>
+      </div>
+      <div class="title__wrap">
+        <h1 id="title"></h1>
+        <input
+          type="text"
+          name="title"
+          id="title__input"
+          class="title__state--off"
+        />
+      </div>
+      <div class="blank"></div>
     </div>
     <label for="note">記下你的筆記</label>
     <div class="titleName">
       <p class="noteName">筆記名字</p>
+
       <input type="text" id="note_name" />
     </div>
     <div class="editor-wrapper">

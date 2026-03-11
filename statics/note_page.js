@@ -1,6 +1,7 @@
 "use strict";
 
 // JWT驗證
+const title = document.getElementById("title");
 let note_name = document.getElementById("note_name");
 let note = document.getElementById("note");
 const token = localStorage.getItem("JWTtoken");
@@ -17,6 +18,7 @@ const checkState = async function () {
 
   if (response.note) {
     note_name.value = response.note[0][0];
+    title.innerText = response.note[0][0];
     const contentArray = JSON.parse(response.note[0][1]);
     const lines = contentArray.map((line) => line.text);
     note.value = lines.join("\n");
@@ -28,10 +30,45 @@ const checkState = async function () {
 checkState();
 
 // 到dashboard
-const nody = document.querySelector(".nody");
-nody.addEventListener("click", () => {
+const nodynote = document.querySelector(".nodynote");
+nodynote.addEventListener("click", () => {
   window.location.href = "/dashboard";
 });
+
+// 名稱
+const titleInput = document.getElementById("title__input");
+title.addEventListener("click", () => {
+  titleInput.value = title.innerText;
+
+  title.classList.add("title__state--off");
+  titleInput.classList.remove("title__state--off");
+
+  titleInput.focus();
+  titleInput.select();
+});
+const saveTitle = function () {
+  const nweTitle = titleInput.value.trim();
+
+  if (nweTitle === "") {
+    titleInput.value = title.innerText;
+  }
+
+  if (nweTitle !== "") {
+    title.innerText = nweTitle;
+  }
+
+  title.classList.remove("title__state--off");
+  titleInput.classList.add("title__state--off");
+};
+
+titleInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    titleInput.blur();
+  }
+});
+
+titleInput.addEventListener("blur", saveTitle);
+titleInput.addEventListener("click", saveTitle);
 
 // 儲存
 const save = document.getElementById("save");
@@ -160,7 +197,8 @@ ws.onmessage = (event) => {
   // console.log(data);
 
   if (data.type === "name") {
-    note_name.value = data.name;
+    // note_name.value = data.name;
+    title.innerText = data.content.newName;
   } else if (data.type === "content") {
     activeUsers = data.activeUsers;
     console.log(activeUsers);
@@ -172,7 +210,11 @@ ws.onmessage = (event) => {
     console.log("使用者加入:", data.user_id);
   } else if (data.type === "user_leave") {
     activeUsers = activeUsers.filter((id) => id !== data.user_id);
+    delete userLines[data.user_id];
     console.log("使用者離開:", data.user_id);
+
+    highlightCurrentLine();
+    updateUserStatus();
   } else if (data.type === "cursor_move") {
     const user_id = data.content.user_id;
     const lineIndex = data.content.lineIndex;
@@ -301,6 +343,31 @@ note_name.addEventListener("input", () => {
         },
       }),
     );
+  }, 200);
+});
+
+titleInput.addEventListener("input", () => {
+  clearTimeout(nameTimeout);
+  nameTimeout = setTimeout(() => {
+    if (titleInput.value.trim() === "") {
+      ws.send(
+        JSON.stringify({
+          type: "name",
+          content: {
+            newName: title.innerText,
+          },
+        }),
+      );
+    } else {
+      ws.send(
+        JSON.stringify({
+          type: "name",
+          content: {
+            newName: titleInput.value,
+          },
+        }),
+      );
+    }
   }, 200);
 });
 

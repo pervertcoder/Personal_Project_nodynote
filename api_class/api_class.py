@@ -66,3 +66,10 @@ class sharedNoteResponse(BaseModel):
 class logoutResponse(BaseModel):
     ok : bool
     message : str
+
+class colorUpdateResponse(BaseModel):
+    ok : bool
+
+class colorUpdateResquest(BaseModel):
+    user_email : str
+    color : str

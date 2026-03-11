@@ -11,6 +11,7 @@ p {
 .right {
   display: flex;
   justify-content: center;
+  position: relative;
 }
 
 .userCircle {
@@ -25,6 +26,15 @@ p {
   align-items: center;
   font-size: 40px;
   color: white;
+}
+
+#color__picker {
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  top: 50px;
+  left: 0px;
 }
 
 .title {

@@ -94,7 +94,17 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
             msg_type = data["type"]
             content = data["content"]
             if msg_type == "name":
-                active_notes[note_id]["name"] = data["content"]["newName"]
+                note = active_notes[note_id]
+                note["name"] = data["content"]["newName"]
+                newName = data["content"]["newName"]
+                for conn in note["connection"]:
+                    if conn != websocket:
+                        await conn.send_json({
+                            "type" : "name",
+                            "content" : {
+                                "newName" : newName
+                            }
+                        })
             elif msg_type == "updated_line":
                 line_index = content["lineIndex"]
                 new_text = content["newText"]

@@ -4,20 +4,65 @@ body {
   align-items: center;
 }
 
+.nody {
+  display: flex;
+  align-items: center;
+  width: 30%;
+}
+
 .nodynote {
   display: inline-block;
-  font-size: 40px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: bold;
   cursor: pointer;
+  color: #d4d4d8;
+  margin-top: 7px;
+  margin-bottom: 7px;
+  margin-left: 16px;
+}
+
+.blank {
+  width: 30%;
 }
 
 .topbar {
-  width: 80%;
+  width: 100%;
   padding: 10px;
+  background-color: #27272a;
+  display: flex;
+  justify-content: space-evenly;
+  box-sizing: border-box;
+}
+
+.title__wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30%;
+  position: relative;
+}
+
+#title,
+#title__input {
+  position: absolute;
+  top: 11px;
+  left: 200px;
+  width: 20%;
+  background-color: #27272a;
+  color: white;
+}
+
+#title {
+  color: white;
+}
+
+.title__state--off {
+  display: none;
 }
 
 label {
   margin-top: 20px;
+  display: none;
 }
 
 .titleName {
@@ -26,6 +71,7 @@ label {
   display: flex;
   justify-content: start;
   align-items: center;
+  display: none;
 }
 
 .titleName input {
@@ -68,7 +114,8 @@ label {
 }
 
 .editor-wrapper {
-  width: 80%;
+  /* width: 45%; */
+  width: 70%;
   display: flex;
   position: relative;
 }
@@ -97,14 +144,14 @@ label {
 }
 
 .user-ball {
-  width: 18px;
-  height: 18px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 10px;
+  font-size: 30px;
   margin: 2px 0;
 }
 
@@ -113,7 +160,7 @@ label {
   align-items: center;
   margin-top: 10px;
   margin-bottom: 10px;
-  font-size: 25px;
+  font-size: 16px;
 }
 
 .block:focus {
@@ -127,7 +174,7 @@ label {
   margin-top: 10px;
   margin-bottom: 10px;
   color: gray;
-  font-size: 25px;
+  font-size: 16px;
 }
 
 #line__numbers div.active {

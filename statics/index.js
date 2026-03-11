@@ -9,6 +9,7 @@ window.addEventListener("pageshow", (event) => {
 const token = localStorage.getItem("JWTtoken");
 let userName = document.querySelector(".username");
 const userCircle = document.querySelector(".userCircle");
+const colorPicker = document.getElementById("color__picker");
 // const userId = window.location.pathname.slice(11);
 const checkState = async function () {
   const url = "/api/auth/login";
@@ -28,8 +29,39 @@ const checkState = async function () {
   } else {
     window.location.href = "/";
   }
+
+  colorPicker.addEventListener("change", (e) => {
+    const color = e.target.value;
+    const mail = response.member_data[0][2];
+    updateColor(mail, color);
+    userCircle.style.backgroundColor = `${color}`;
+  });
 };
 checkState();
+
+// 更改顏色
+
+userCircle.addEventListener("click", () => {
+  colorPicker.click();
+});
+const updateColor = async function (email, color) {
+  const payload = {
+    user_email: email,
+    color: color,
+  };
+  const url = "/api/auth/color";
+  const request = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+    credentials: "include",
+  });
+
+  const response = await request.json();
+  console.log(response);
+};
 
 // 新建筆記
 const newNote = document.getElementById("newnote");
