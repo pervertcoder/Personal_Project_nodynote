@@ -174,7 +174,7 @@ const updateUserStatus = function () {
     if (block) {
       ball.style.position = "absolute";
       ball.style.top = block.offsetTop + "px";
-      ball.style.right = "30px";
+      ball.style.right = "5px";
       panel.appendChild(ball);
     }
   });
@@ -234,6 +234,40 @@ ws.onmessage = (event) => {
     if (block) {
       block.dataset.version = version;
     }
+  } else if (data.type === "ack_paste") {
+    const startIndex = data.content.startIndex;
+    const lines = data.content.lines;
+
+    let currentIndex = startIndex;
+
+    lines.forEach((lineText) => {
+      let block = editor.querySelector(`.block[data-index='${currentIndex}']`);
+      if (!block) {
+        block = document.createElement("div");
+        block.className = "block";
+        block.contentEditable = true;
+        block.dataset.index = currentIndex;
+        block.dataset.version = 0;
+        block.innerText = lineText;
+
+        const prevBlock = editor.querySelector(
+          `.block[data-index='${currentIndex - 1}']`,
+        );
+        if (prevBlock) {
+          prevBlock.after(block);
+        } else {
+          editor.prepend(block);
+        }
+      } else {
+        block.innerText = lineText;
+      }
+
+      currentIndex += 1;
+    });
+
+    const blocks = editor.querySelectorAll(".block");
+    blocks.forEach((b, i) => (b.dataset.index = i));
+    refreshLineNumber();
   } else if (data.type === "updated_line") {
     const { lineIndex, newText, version } = data.content;
 
@@ -285,18 +319,61 @@ ws.onmessage = (event) => {
     refreshLineNumber();
   } else if (data.type === "delete_line") {
     const { lineIndex } = data.content;
+    const block = editor.querySelector(`.block[data-index='${lineIndex}']`);
+    if (block) {
+      block.remove();
 
-    if (selfDeleteIndex.has(lineIndex)) {
-      selfDeleteIndex.delete(lineIndex);
-      return;
+      const blocks = editor.querySelectorAll(".block");
+      blocks.forEach((b, i) => {
+        b.dataset.index = i;
+      });
+      refreshLineNumber();
+    } else {
+      console.warn("刪除行找不到");
     }
+  } else if (data.type === "paste_lines") {
+    const startIndex = data.content.startIndex;
+    const lines = data.content.lines;
 
-    const block = document.querySelector(`.block[data-index='${lineIndex}']`);
-    if (block) block.remove();
+    let currentIndex = startIndex;
 
-    const editor = document.getElementById("editor");
+    lines.forEach((lineText) => {
+      if (selfInsertIndex.has(currentIndex)) {
+        selfInsertIndex.delete(currentIndex);
+        currentIndex += 1;
+        return;
+      }
+
+      let block = editor.querySelector(`.block[data-index='${currentIndex}']`);
+
+      if (!block) {
+        // 如果該行不存在，新增一個 block
+        block = document.createElement("div");
+        block.className = "block";
+        block.contentEditable = true;
+        block.dataset.index = currentIndex;
+        block.dataset.version = 0;
+        block.innerText = lineText;
+
+        // 插入到 editor 中
+        const prevBlock = editor.querySelector(
+          `.block[data-index='${currentIndex - 1}']`,
+        );
+        if (prevBlock) {
+          prevBlock.after(block);
+        } else {
+          editor.prepend(block);
+        }
+      } else {
+        block.innerText = lineText;
+      }
+
+      currentIndex += 1;
+    });
+
     const blocks = editor.querySelectorAll(".block");
     blocks.forEach((b, i) => (b.dataset.index = i));
+
     refreshLineNumber();
   }
 
@@ -427,18 +504,89 @@ const refreshLineNum = function () {
   });
 };
 
+const splitLine = function (block) {
+  const index = parseInt(block.dataset.index);
+  const text = block.innerText;
+
+  const selection = window.getSelection();
+  const cursorPos = selection.getRangeAt(0).startOffset;
+
+  const before = text.slice(0, cursorPos);
+  const after = text.slice(cursorPos);
+  const afterText = after.trim() === "" ? "" : after;
+
+  block.innerText = before;
+
+  const newBlock = document.createElement("div");
+  newBlock.className = "block";
+  newBlock.contentEditable = true;
+  newBlock.innerText = afterText || " ";
+  newBlock.dataset.index = index + 1;
+  newBlock.dataset.version = 0;
+
+  block.after(newBlock);
+  newBlock.focus();
+
+  const range = document.createRange();
+  range.setStart(newBlock.firstChild || newBlock, 0);
+  range.collapse(true);
+
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+
+  const blocks = editor.querySelectorAll(".block");
+  blocks.forEach((b, i) => (b.dataset.index = i));
+  refreshLineNumber();
+
+  return {
+    before,
+    afterText,
+    index,
+  };
+};
+
 const debouceTimers = {};
+const MAX_CHARS_PER_LINE = 50;
 editor.addEventListener("input", (e) => {
   const block = e.target.closest(".block");
-  const index = parseInt(block.dataset.index);
   if (!block) return;
+  // const index = parseInt(block.dataset.index);
+  // const text = block.innerText;
 
+  let currentBlock = block;
+  while (currentBlock.innerText.length >= MAX_CHARS_PER_LINE) {
+    const { before, afterText, index } = splitLine(currentBlock);
+    currentBlock = currentBlock.nextElementSibling;
+
+    ws.send(
+      JSON.stringify({
+        type: "updated_line",
+        content: {
+          lineIndex: parseInt(currentBlock.dataset.index),
+          newText: before,
+          version: parseInt(currentBlock.dataset.version),
+        },
+      }),
+    );
+
+    ws.send(
+      JSON.stringify({
+        type: "insert_line",
+        content: {
+          lineIndex: parseInt(currentBlock.dataset.index) + 1,
+          text: afterText,
+        },
+      }),
+    );
+  }
+
+  const index = parseInt(currentBlock.dataset.index);
   clearTimeout(debouceTimers[index]);
 
   debouceTimers[index] = setTimeout(() => {
     const text = block.innerText;
     const version = parseInt(block.dataset.version);
-    // console.log(version);
     ws.send(
       JSON.stringify({
         type: "updated_line",
@@ -450,6 +598,9 @@ editor.addEventListener("input", (e) => {
       }),
     );
   }, 300);
+
+  sendCursor();
+  highlightCurrentLine();
 });
 
 editor.addEventListener("keydown", (e) => {
@@ -457,32 +608,8 @@ editor.addEventListener("keydown", (e) => {
     e.preventDefault();
     const block = e.target.closest(".block");
     if (!block) return;
-    const index = parseInt(block.dataset.index);
-    const text = block.innerText;
 
-    const cursorPos = window.getSelection().getRangeAt(0).startOffset;
-    const before = text.slice(0, cursorPos);
-    const after = text.slice(cursorPos);
-    const afterText = after.trim() === "" ? "" : after;
-
-    block.innerText = before;
-
-    const newBlock = document.createElement("div");
-    newBlock.className = "block";
-    newBlock.contentEditable = true;
-    newBlock.innerText = afterText || " ";
-    newBlock.dataset.index = index + 1;
-    newBlock.dataset.version = 0;
-
-    block.after(newBlock);
-    newBlock.focus();
-
-    const range = document.createRange();
-    range.setStart(newBlock.firstChild || newBlock, 0);
-    range.collapse(true);
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
+    const { before, afterText, index } = splitLine(block);
 
     sendCursor();
     highlightCurrentLine();
@@ -507,10 +634,6 @@ editor.addEventListener("keydown", (e) => {
         },
       }),
     );
-
-    const blocks = editor.querySelectorAll(".block");
-    blocks.forEach((b, i) => (b.dataset.index = i));
-    refreshLineNumber();
   }
 });
 
@@ -566,3 +689,78 @@ editor.addEventListener("keydown", (e) => {
 
 editor.addEventListener("keyup", sendCursor);
 editor.addEventListener("click", sendCursor);
+
+editor.addEventListener("paste", (e) => {
+  e.preventDefault();
+
+  const block = e.target.closest(".block");
+  if (!block) return;
+
+  const pasteText = e.clipboardData.getData("text");
+  const index = parseInt(block.dataset.index);
+  const selection = window.getSelection();
+  const cursorPos = selection.getRangeAt(0).startOffset;
+
+  // 將貼上的文字拆成多行
+  let allLines = [];
+  pasteText.split(/\r?\n/).forEach((line) => {
+    while (line.length > MAX_CHARS_PER_LINE) {
+      allLines.push(line.slice(0, MAX_CHARS_PER_LINE));
+      line = line.slice(MAX_CHARS_PER_LINE);
+    }
+    allLines.push(line);
+  });
+
+  // 替換原本 block 文字，並依序生成後續 block
+  let currentBlock = block;
+  const firstLine = allLines.shift();
+  const before = currentBlock.innerText.slice(0, cursorPos);
+  const after = currentBlock.innerText.slice(cursorPos);
+  currentBlock.innerText = before + firstLine;
+
+  let newBlocks = [];
+  allLines.forEach((lineText) => {
+    const newBlock = document.createElement("div");
+    newBlock.className = "block";
+    newBlock.contentEditable = true;
+    newBlock.innerText = lineText;
+    newBlock.dataset.version = 0;
+
+    newBlocks.push(newBlock);
+    currentBlock.after(newBlock);
+    currentBlock = newBlock;
+  });
+
+  // 更新所有行 index
+  const blocks = editor.querySelectorAll(".block");
+  blocks.forEach((b, i) => (b.dataset.index = i));
+  refreshLineNumber();
+
+  // 發送一次 websocket 批次更新
+  const wsLines = [before + firstLine, ...allLines];
+  ws.send(
+    JSON.stringify({
+      type: "paste_lines",
+      content: {
+        startIndex: index,
+        lines: wsLines,
+      },
+    }),
+  );
+
+  // for (let i = 0; i < wsLines.length; i++) {
+  //   selfInsertIndex.add(index + 1);
+  // }
+  // 調整光標到最後貼上的位置
+  const range = document.createRange();
+  range.setStart(
+    currentBlock.firstChild || currentBlock,
+    currentBlock.innerText.length,
+  );
+  range.collapse(true);
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  sendCursor();
+  highlightCurrentLine();
+});

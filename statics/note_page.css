@@ -2,6 +2,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 100vh;
 }
 
 .nody {
@@ -32,6 +33,7 @@ body {
   display: flex;
   justify-content: space-evenly;
   box-sizing: border-box;
+  position: fixed;
 }
 
 .title__wrap {
@@ -114,29 +116,30 @@ label {
 }
 
 .editor-wrapper {
-  /* width: 45%; */
   width: 70%;
+  height: calc(100vh - 120px);
+  flex: 1;
   display: flex;
   position: relative;
+  margin-top: 50px;
+  padding-bottom: 10px;
 }
 
 #line__numbers {
-  width: 5%;
-  height: 100vh;
+  width: 4%;
   margin-top: 20px;
   padding: 10px;
 }
 
 #editor {
   margin-top: 20px;
-  width: 95%;
-  height: 100vh;
+  width: 90%;
   padding: 10px;
   flex: 1;
 }
 
 #user-status-panel {
-  width: 60px;
+  width: 5%;
   padding-left: 5px;
   display: flex;
   flex-direction: column;
@@ -156,11 +159,12 @@ label {
 }
 
 .block {
-  display: flex;
-  align-items: center;
+  display: block;
   margin-top: 10px;
   margin-bottom: 10px;
   font-size: 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .block:focus {
@@ -180,11 +184,4 @@ label {
 #line__numbers div.active {
   color: black;
   font-weight: bold;
-}
-
-footer {
-  width: 100%;
-  height: 50px;
-  margin-top: 30px;
-  background-color: gainsboro;
 }
