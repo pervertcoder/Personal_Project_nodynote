@@ -234,41 +234,43 @@ ws.onmessage = (event) => {
     if (block) {
       block.dataset.version = version;
     }
-  } else if (data.type === "ack_paste") {
-    const startIndex = data.content.startIndex;
-    const lines = data.content.lines;
+  }
+  // else if (data.type === "ack_paste") {
+  //   const startIndex = data.content.startIndex;
+  //   const lines = data.content.lines;
 
-    let currentIndex = startIndex;
+  //   let currentIndex = startIndex;
 
-    lines.forEach((lineText) => {
-      let block = editor.querySelector(`.block[data-index='${currentIndex}']`);
-      if (!block) {
-        block = document.createElement("div");
-        block.className = "block";
-        block.contentEditable = true;
-        block.dataset.index = currentIndex;
-        block.dataset.version = 0;
-        block.innerText = lineText;
+  //   lines.forEach((lineText) => {
+  //     let block = editor.querySelector(`.block[data-index='${currentIndex}']`);
+  //     if (!block) {
+  //       block = document.createElement("div");
+  //       block.className = "block";
+  //       block.contentEditable = true;
+  //       block.dataset.index = currentIndex;
+  //       block.dataset.version = 0;
+  //       block.innerText = lineText;
 
-        const prevBlock = editor.querySelector(
-          `.block[data-index='${currentIndex - 1}']`,
-        );
-        if (prevBlock) {
-          prevBlock.after(block);
-        } else {
-          editor.prepend(block);
-        }
-      } else {
-        block.innerText = lineText;
-      }
+  //       const prevBlock = editor.querySelector(
+  //         `.block[data-index='${currentIndex - 1}']`,
+  //       );
+  //       if (prevBlock) {
+  //         prevBlock.after(block);
+  //       } else {
+  //         editor.prepend(block);
+  //       }
+  //     } else {
+  //       block.innerText = lineText;
+  //     }
 
-      currentIndex += 1;
-    });
+  //     currentIndex += 1;
+  //   });
 
-    const blocks = editor.querySelectorAll(".block");
-    blocks.forEach((b, i) => (b.dataset.index = i));
-    refreshLineNumber();
-  } else if (data.type === "updated_line") {
+  //   const blocks = editor.querySelectorAll(".block");
+  //   blocks.forEach((b, i) => (b.dataset.index = i));
+  //   refreshLineNumber();
+  // }
+  else if (data.type === "updated_line") {
     const { lineIndex, newText, version } = data.content;
 
     let block = document.querySelector(`.block[data-index='${lineIndex}']`);
@@ -302,7 +304,6 @@ ws.onmessage = (event) => {
     div.className = "block";
     div.contentEditable = true;
     div.innerText = text;
-    // div.innerText = `${lineIndex}. ${text}`;
     div.dataset.index = lineIndex;
     div.dataset.version = version;
 
@@ -738,6 +739,7 @@ editor.addEventListener("paste", (e) => {
 
   // 發送一次 websocket 批次更新
   const wsLines = [before + firstLine, ...allLines];
+  // console.log(wsLines);
   ws.send(
     JSON.stringify({
       type: "paste_lines",
@@ -748,9 +750,9 @@ editor.addEventListener("paste", (e) => {
     }),
   );
 
-  // for (let i = 0; i < wsLines.length; i++) {
-  //   selfInsertIndex.add(index + 1);
-  // }
+  for (let i = 0; i < wsLines.length; i++) {
+    selfInsertIndex.add(index + 1);
+  }
   // 調整光標到最後貼上的位置
   const range = document.createRange();
   range.setStart(
@@ -763,4 +765,6 @@ editor.addEventListener("paste", (e) => {
 
   sendCursor();
   highlightCurrentLine();
+
+  window.location.reload();
 });

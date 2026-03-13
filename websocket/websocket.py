@@ -220,17 +220,22 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
             elif msg_type == "paste_lines":
                 start_index = content["startIndex"]
                 lines = content["lines"]
+                
+                while lines and lines[-1].strip() == "":
+                    lines.pop()
 
                 note = active_notes[note_id]
+
+                cleaned_lines = []
+                for line_text in lines:
+                        line_text = line_text.strip()
+                        if line_text != "":
+                            cleaned_lines.append(line_text)
                 
-                for offset, line_text in enumerate(lines):
+                for offset, line_text in enumerate(cleaned_lines):
                     insert_index = start_index + offset
                     note["content"].insert(insert_index, {"text" : line_text, "version" : 0})
-                    if insert_index < len(note["content"]):
-                        note["content"][insert_index]["text"] = line_text
-                        note["content"][insert_index]["version"] += 1
-                    else:
-                        note["content"].append({"text" : line_text, "version" : 0})
+                    # print(note["content"])
                 
                     for conn in note["connection"]:
                         if conn != websocket:
@@ -243,13 +248,6 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                                 }
                             })
                 
-                await websocket.send_json({
-                    "type" : "ack_paste",
-                    "content" : {
-                        "startIndex" : start_index,
-                        "lines" : lines
-                    }
-                })
                     
     except WebSocketDisconnect:
         print("使用者斷線")
