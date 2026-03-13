@@ -16,7 +16,7 @@ body {
   font-size: 26px;
   font-weight: bold;
   cursor: pointer;
-  color: #d4d4d8;
+  color: white;
   margin-top: 7px;
   margin-bottom: 7px;
   margin-left: 16px;
@@ -24,6 +24,68 @@ body {
 
 .blank {
   width: 30%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.online__members {
+  width: 10%;
+  padding: 5px;
+  /* margin-left: 10px; */
+  border-radius: 5px;
+  border: solid #555 1px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  background-color: #555;
+}
+
+.online__popup {
+  width: 10%;
+  padding: 10px;
+  display: block;
+  position: absolute;
+  z-index: 9999;
+  top: 70px;
+  right: 8.5%;
+  border-radius: 10px;
+  border: black solid 1px;
+  background-color: #27272a;
+}
+
+.online__popup--off {
+  display: none;
+}
+
+.online__popup--on {
+  display: block;
+}
+
+.popupSon {
+  width: 100%;
+  display: flex;
+  margin-top: 10px;
+}
+
+.popupSonName {
+  color: white;
+  margin-left: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.user-ball2 {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 15px;
+  margin: 2px 2px;
 }
 
 .topbar {
@@ -47,19 +109,26 @@ body {
 #title,
 #title__input {
   position: absolute;
-  top: 11px;
-  left: 200px;
-  width: 20%;
+  top: 50%;
+  left: 30%;
+  padding: 5px;
   background-color: #27272a;
   color: white;
+  font-size: 26px;
+  transform: translateY(-50%);
 }
 
 #title {
+  white-space: nowrap;
   color: white;
 }
 
 .title__state--off {
   display: none;
+}
+
+.show_on {
+  display: block;
 }
 
 label {
@@ -144,6 +213,8 @@ label {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  position: relative;
+  z-index: 1;
 }
 
 .user-ball {
@@ -155,7 +226,9 @@ label {
   justify-content: center;
   color: white;
   font-size: 30px;
-  margin: 2px 0;
+  margin: 2px 2px;
+  position: absolute;
+  z-index: 2;
 }
 
 .block {

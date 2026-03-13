@@ -29,6 +29,18 @@ const checkState = async function () {
 };
 checkState();
 
+// 顯示人數popup視窗
+const onlineMembers = document.querySelector(".online__members");
+const blank = document.querySelector(".blank");
+const popupOnline = document.querySelector(".online__popup");
+
+const showPopupOnine = function () {
+  popupOnline.classList.toggle("online__popup--off");
+  popupOnline.classList.toggle("online__popup--on");
+};
+
+blank.addEventListener("click", showPopupOnine);
+
 // 到dashboard
 const nodynote = document.querySelector(".nodynote");
 nodynote.addEventListener("click", () => {
@@ -42,6 +54,7 @@ title.addEventListener("click", () => {
 
   title.classList.add("title__state--off");
   titleInput.classList.remove("title__state--off");
+  titleInput.classList.add("show_on");
 
   titleInput.focus();
   titleInput.select();
@@ -58,6 +71,8 @@ const saveTitle = function () {
   }
 
   title.classList.remove("title__state--off");
+  title.classList.add("show_on");
+  titleInput.classList.remove("show_on");
   titleInput.classList.add("title__state--off");
 };
 
@@ -172,8 +187,8 @@ const updateUserStatus = function () {
 
     const block = document.querySelector(`.block[data-index='${lineIndex}']`);
     if (block) {
-      ball.style.position = "absolute";
-      ball.style.top = block.offsetTop + "px";
+      // ball.style.position = "absolute";
+      ball.style.top = block.offsetTop - 13 + "px";
       ball.style.right = "5px";
       panel.appendChild(ball);
     }
@@ -192,6 +207,7 @@ ws.onopen = () => {
 };
 const selfInsertIndex = new Set();
 const selfDeleteIndex = new Set();
+
 ws.onmessage = (event) => {
   const data = JSON.parse(event.data);
   // console.log(data);
@@ -205,12 +221,103 @@ ws.onmessage = (event) => {
     lines2 = data.content;
     render(lines2);
     refreshLineNumber();
+
+    // 顯示在線人數
+    for (let i = 0; i < activeUsers.length; i++) {
+      const memberBall = document.createElement("div");
+      memberBall.className = "user-ball2";
+      memberBall.style.backgroundColor = activeUsers[i][1];
+      memberBall.innerText = activeUsers[i][2];
+      onlineMembers.appendChild(memberBall);
+
+      const popupSon = document.createElement("div");
+      popupSon.className = "popupSon";
+      popupOnline.appendChild(popupSon);
+
+      const popupSonBall = document.createElement("div");
+      popupSonBall.className = "popupSonBall";
+      popupSonBall.classList.add("user-ball2");
+      popupSonBall.style.backgroundColor = activeUsers[i][1];
+      popupSonBall.innerText = activeUsers[i][2];
+      popupSon.appendChild(popupSonBall);
+
+      const popupSonName = document.createElement("p");
+      popupSonName.className = "popupSonName";
+      popupSonName.innerText = activeUsers[i][3];
+      popupSon.appendChild(popupSonName);
+    }
   } else if (data.type === "user_join") {
-    activeUsers.push(data.user_id);
+    const add_member = [];
+    add_member.push(data.user_id, data.color, data.init_name, data.full_name);
+    activeUsers.push(add_member);
+    console.log(activeUsers);
+    onlineMembers.innerHTML = "";
+    popupOnline.innerHTML = "";
+    // 顯示在線人數
+    for (let i = 0; i < activeUsers.length; i++) {
+      const memberBall = document.createElement("div");
+      memberBall.className = "user-ball2";
+      memberBall.style.backgroundColor = activeUsers[i][1];
+      memberBall.innerText = activeUsers[i][2];
+      onlineMembers.appendChild(memberBall);
+
+      const popupSon = document.createElement("div");
+      popupSon.className = "popupSon";
+      popupOnline.appendChild(popupSon);
+
+      const popupSonBall = document.createElement("div");
+      popupSonBall.className = "popupSonBall";
+      popupSonBall.classList.add("user-ball2");
+      popupSonBall.style.backgroundColor = activeUsers[i][1];
+      popupSonBall.innerText = activeUsers[i][2];
+      popupSon.appendChild(popupSonBall);
+
+      const popupSonName = document.createElement("p");
+      popupSonName.className = "popupSonName";
+      popupSonName.innerText = activeUsers[i][3];
+      popupSon.appendChild(popupSonName);
+    }
     console.log("使用者加入:", data.user_id);
   } else if (data.type === "user_leave") {
-    activeUsers = activeUsers.filter((id) => id !== data.user_id);
-    delete userLines[data.user_id];
+    const activeUsersUpdate = activeUsers.filter(
+      (user) => user[0] !== data.user_id[0],
+    );
+    console.log(userLines);
+    delete userLines[data.user_id[0]];
+    for (let i = 0; i < activeUsers.length; i++) {
+      if (activeUsers[i][0] === data.user_id[0]) {
+        activeUsers.splice(i, 1);
+        break;
+      }
+    }
+    console.log(activeUsersUpdate);
+    onlineMembers.innerHTML = "";
+    popupOnline.innerHTML = "";
+
+    // 顯示在線人數
+    for (let i = 0; i < activeUsersUpdate.length; i++) {
+      const memberBall = document.createElement("div");
+      memberBall.className = "user-ball2";
+      memberBall.style.backgroundColor = activeUsersUpdate[i][1];
+      memberBall.innerText = activeUsersUpdate[i][2];
+      onlineMembers.appendChild(memberBall);
+
+      const popupSon = document.createElement("div");
+      popupSon.className = "popupSon";
+      popupOnline.appendChild(popupSon);
+
+      const popupSonBall = document.createElement("div");
+      popupSonBall.className = "popupSonBall";
+      popupSonBall.classList.add("user-ball2");
+      popupSonBall.style.backgroundColor = activeUsersUpdate[i][1];
+      popupSonBall.innerText = activeUsersUpdate[i][2];
+      popupSon.appendChild(popupSonBall);
+
+      const popupSonName = document.createElement("p");
+      popupSonName.className = "popupSonName";
+      popupSonName.innerText = activeUsersUpdate[i][3];
+      popupSon.appendChild(popupSonName);
+    }
     console.log("使用者離開:", data.user_id);
 
     highlightCurrentLine();
@@ -222,6 +329,7 @@ ws.onmessage = (event) => {
     const initial = data.content.init;
 
     userLines[user_id] = { lineIndex, color, initial };
+    // console.log(userLines);
 
     highlightCurrentLine();
     updateUserStatus();
@@ -234,43 +342,41 @@ ws.onmessage = (event) => {
     if (block) {
       block.dataset.version = version;
     }
-  }
-  // else if (data.type === "ack_paste") {
-  //   const startIndex = data.content.startIndex;
-  //   const lines = data.content.lines;
+  } else if (data.type === "ack_paste") {
+    const startIndex = data.content.startIndex;
+    const lines = data.content.lines;
 
-  //   let currentIndex = startIndex;
+    let currentIndex = startIndex;
 
-  //   lines.forEach((lineText) => {
-  //     let block = editor.querySelector(`.block[data-index='${currentIndex}']`);
-  //     if (!block) {
-  //       block = document.createElement("div");
-  //       block.className = "block";
-  //       block.contentEditable = true;
-  //       block.dataset.index = currentIndex;
-  //       block.dataset.version = 0;
-  //       block.innerText = lineText;
+    lines.forEach((lineText) => {
+      let block = editor.querySelector(`.block[data-index='${currentIndex}']`);
+      if (!block) {
+        block = document.createElement("div");
+        block.className = "block";
+        block.contentEditable = true;
+        block.dataset.index = currentIndex;
+        block.dataset.version = 0;
+        block.innerText = lineText;
 
-  //       const prevBlock = editor.querySelector(
-  //         `.block[data-index='${currentIndex - 1}']`,
-  //       );
-  //       if (prevBlock) {
-  //         prevBlock.after(block);
-  //       } else {
-  //         editor.prepend(block);
-  //       }
-  //     } else {
-  //       block.innerText = lineText;
-  //     }
+        const prevBlock = editor.querySelector(
+          `.block[data-index='${currentIndex - 1}']`,
+        );
+        if (prevBlock) {
+          prevBlock.after(block);
+        } else {
+          editor.prepend(block);
+        }
+      } else {
+        block.innerText = lineText;
+      }
 
-  //     currentIndex += 1;
-  //   });
+      currentIndex += 1;
+    });
 
-  //   const blocks = editor.querySelectorAll(".block");
-  //   blocks.forEach((b, i) => (b.dataset.index = i));
-  //   refreshLineNumber();
-  // }
-  else if (data.type === "updated_line") {
+    const blocks = editor.querySelectorAll(".block");
+    blocks.forEach((b, i) => (b.dataset.index = i));
+    refreshLineNumber();
+  } else if (data.type === "updated_line") {
     const { lineIndex, newText, version } = data.content;
 
     let block = document.querySelector(`.block[data-index='${lineIndex}']`);

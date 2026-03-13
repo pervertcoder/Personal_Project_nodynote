@@ -3,15 +3,15 @@ from db_control.db_pool import get_db_connect
 def get_member_data(email):
     conn = get_db_connect()
     mycursor = conn.cursor()
-    sql = "select * from member where email = %s"
+    sql = "select id, username, email, color from member where email = %s"
     mycursor.execute(sql, (email,))
     result = [x for x in mycursor]
     mycursor.close()
     conn.close()
     return result
 
-# ans = get_member_data("test1@test.com")
-# print(ans[0][3])
+ans = get_member_data("test1@test.com")
+print(ans[0][3])
 
 def get_member_name(user_id):
     conn = get_db_connect()

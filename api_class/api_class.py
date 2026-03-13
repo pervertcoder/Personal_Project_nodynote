@@ -36,7 +36,7 @@ class note_data_request(BaseModel):
     content : str
 
 class note_render_request(BaseModel):
-    user_id : int
+    user_data : list
     note : list
 
 class note_update_request(BaseModel):

@@ -69,8 +69,11 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
         asyncio.create_task(save_DB(note_id))
     
     note_connection = active_notes[note_id]
+    init_name = user_permission["user_info"][1][0]
+    full_name = user_permission["user_info"][1]
+    color = user_permission["user_info"][4]
     user_id = user_permission["user_info"][0]
-    note_connection["connection"][websocket] = user_id
+    note_connection["connection"][websocket] = user_id, color, init_name, full_name
 
     # active_notes[note_id]["connection"].add(websocket)
     
@@ -85,7 +88,10 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
         if conn != websocket:
             await conn.send_json({
                 "type" : "user_join",
-                "user_id" : user_id
+                "user_id" : user_id,
+                "color" : color,
+                "init_name" : init_name,
+                "full_name" : full_name
             })
     
     try:
@@ -221,8 +227,8 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                 start_index = content["startIndex"]
                 lines = content["lines"]
                 
-                while lines and lines[-1].strip() == "":
-                    lines.pop()
+                # while lines and lines[-1].strip() == "":
+                #     lines.pop()
 
                 note = active_notes[note_id]
 
@@ -232,7 +238,7 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                         if line_text != "":
                             cleaned_lines.append(line_text)
                 
-                for offset, line_text in enumerate(cleaned_lines):
+                for offset, line_text in enumerate(lines):
                     insert_index = start_index + offset
                     note["content"].insert(insert_index, {"text" : line_text, "version" : 0})
                     # print(note["content"])
@@ -247,6 +253,13 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                                     "version": note["content"][insert_index]["version"]
                                 }
                             })
+                await websocket.send_json({
+                    "type" : "ack_paste",
+                    "content" : {
+                        "startIndex" : start_index,
+                        "lines" : lines
+                    }
+                })
                 
                     
     except WebSocketDisconnect:
