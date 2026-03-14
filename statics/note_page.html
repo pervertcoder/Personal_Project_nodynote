@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
     <link rel="icon" href="/statics/favicon.ico" />
     <link rel="stylesheet" href="/statics/style_reset.css" />
     <link rel="stylesheet" href="/statics/note_page.css" />
@@ -25,6 +29,9 @@
       </div>
       <div class="blank">
         <div class="online__members"></div>
+        <div class="share_icon_outlayer symbol__state--off">
+          <span class="material-symbols-outlined">share分享</span>
+        </div>
       </div>
     </div>
     <div class="online__popup online__popup--off"></div>
@@ -47,5 +54,23 @@
       <button type="button" id="save">儲存</button>
     </div>
     <!-- <footer></footer> -->
+    <div class="coverlayer state--off">
+      <div class="popup">
+        <div class="topbar__popup">
+          <p class="shared">分享編輯權限</p>
+          <button type="button" id="close">X</button>
+        </div>
+        <div class="shareContent">
+          <p class="sharedEmail">請輸入分享對象的電子郵件</p>
+          <div class="noteNumber"></div>
+          <input
+            type="text"
+            id="shareEmail"
+            placeholder="請輸入分享對象的電子郵件"
+          />
+          <button type="button" id="sumbit">送出</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

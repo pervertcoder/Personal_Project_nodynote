@@ -6,6 +6,7 @@ let note_name = document.getElementById("note_name");
 let note = document.getElementById("note");
 const token = localStorage.getItem("JWTtoken");
 const id = window.location.pathname.slice(6);
+const icon = document.querySelector(".share_icon_outlayer");
 const checkState = async function () {
   const url = `/api/note/note_content_render/${id}`;
   const request = await fetch(url, {
@@ -22,7 +23,11 @@ const checkState = async function () {
     const contentArray = JSON.parse(response.note[0][1]);
     const lines = contentArray.map((line) => line.text);
     note.value = lines.join("\n");
-    // console.log("登入成功");
+
+    if (response.note[0][2] === "owner") {
+      icon.classList.remove("symbol__state--off");
+      icon.classList.add("symbol__state--on");
+    }
   } else {
     window.location.href = "/dashboard";
   }
@@ -39,7 +44,7 @@ const showPopupOnine = function () {
   popupOnline.classList.toggle("online__popup--on");
 };
 
-blank.addEventListener("click", showPopupOnine);
+onlineMembers.addEventListener("click", showPopupOnine);
 
 // 到dashboard
 const nodynote = document.querySelector(".nodynote");
@@ -873,4 +878,48 @@ editor.addEventListener("paste", (e) => {
   highlightCurrentLine();
 
   window.location.reload();
+});
+
+const share = document.querySelector(".share_icon_outlayer");
+const openShareModal = function () {
+  const modal = document.querySelector(".coverlayer");
+  const close = document.getElementById("close");
+
+  modal.classList.add("state--on");
+  close.addEventListener("click", () => {
+    modal.classList.remove("state--on");
+  });
+};
+
+share.addEventListener("click", openShareModal);
+// 傳分享資料;
+const submit = document.getElementById("sumbit");
+submit.addEventListener("click", async () => {
+  const modal = document.querySelector(".coverlayer");
+  let shareEmail = document.getElementById("shareEmail").value.trim();
+  const note_id = window.location.pathname.slice(6);
+  if (!shareEmail) {
+    alert("請輸入信箱");
+    return;
+  } else {
+    const payload = {
+      email: shareEmail,
+    };
+    const url = `/api/note/share_note/${note_id}`;
+    const request = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      credentials: "include",
+    });
+
+    const response = await request.json();
+    console.log(response);
+
+    // shareEmail = "";
+    modal.classList.remove("state--on");
+    // window.location.reload();
+  }
 });

@@ -137,7 +137,7 @@ submit.addEventListener("click", async () => {
     const response = await request.json();
     console.log(response);
 
-    window.location.reload();
+    // window.location.reload();
   }
 });
 
