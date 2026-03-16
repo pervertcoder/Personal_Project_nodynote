@@ -46,10 +46,10 @@ const showPopupOnine = function () {
 
 onlineMembers.addEventListener("click", showPopupOnine);
 
-// 到dashboard
+// 到overview
 const nodynote = document.querySelector(".nodynote");
 nodynote.addEventListener("click", () => {
-  window.location.href = "/dashboard";
+  window.location.href = "/overview";
 });
 
 // 名稱

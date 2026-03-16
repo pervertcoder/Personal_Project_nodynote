@@ -59,7 +59,7 @@ loginBtn.addEventListener("click", async () => {
 
   if (response.ok) {
     // localStorage.setItem("JWTtoken", response.token);
-    window.location.href = "/dashboard";
+    window.location.href = "/overview";
   } else {
     console.log("帳號密碼錯誤");
   }

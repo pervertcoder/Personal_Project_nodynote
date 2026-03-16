@@ -15,14 +15,68 @@
   </head>
   <body>
     <div class="sidebar">
-      <div class="profile"></div>
+      <div class="blank"></div>
+      <div class="profile">
+        <span class="userCircle"></span>
+        <input type="color" id="color__picker" />
+        <span class="username">username</span>
+      </div>
+      <div class="blank"></div>
       <div class="func">
         <button id="newNote" type="button">
           <span class="material-symbols-outlined">add</span>
           <span id="add_note">建立我的筆記</span>
         </button>
       </div>
+      <div class="blank2"></div>
+      <div class="mainFun">
+        <div class="allNotes__outlayer">
+          <span class="material-symbols-outlined" id="eventnote"
+            >event_note</span
+          >
+          <span class="allNotes" id="mynote">All Notes</span>
+        </div>
+        <div class="sharedNotes__outlayer">
+          <span class="material-symbols-outlined">link_2</span>
+          <span class="sharedNotes" id="sharednote">Shared Notes</span>
+        </div>
+      </div>
+      <div class="blank2"></div>
+      <div class="blank"></div>
+      <div class="blank"></div>
+      <div class="blank"></div>
+      <div class="blank"></div>
+      <div class="blank"></div>
+      <div class="logout" id="logout">
+        <span class="material-symbols-outlined" id="loggout">logout</span>
+        <span class="logout__content">logout</span>
+      </div>
     </div>
-    <div class="mainContent"></div>
+    <div class="mainContent">
+      <div class="title">
+        <span class="titleName">My Notes</span>
+      </div>
+      <div class="content">
+        <div class="note"></div>
+      </div>
+    </div>
+    <div class="coverlayer state--off">
+      <div class="popup">
+        <div class="topbar__popup">
+          <p class="shared">分享編輯權限</p>
+          <button type="button" id="close">X</button>
+        </div>
+        <div class="shareContent">
+          <p class="sharedEmail">請輸入分享對象的電子郵件</p>
+          <div class="noteNumber"></div>
+          <input
+            type="text"
+            id="shareEmail"
+            placeholder="請輸入分享對象的電子郵件"
+          />
+          <button type="button" id="sumbit">送出</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

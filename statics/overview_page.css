@@ -1,20 +1,62 @@
 body {
   display: flex;
-  background-color: #27272a;
 }
 
 .sidebar {
-  width: 20%;
+  width: 18%;
   height: 100vh;
   border-right: solid 0.5px rgb(212, 205, 205);
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: #e5e9f0;
+}
+
+.blank,
+.blank2 {
+  width: 95%;
+  height: 50px;
+}
+
+.blank2 {
+  border-bottom: 1px solid rgb(207, 205, 205);
 }
 
 .profile {
   width: 80%;
-  height: 50px;
+  padding: 10px;
+  display: flex;
+}
+
+.userCircle {
+  margin-right: 5px;
+  border: solid 2.5px gray;
+  width: 40px;
+  height: 40px;
+  padding: 1px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  color: white;
+}
+
+#color__picker {
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  top: 50px;
+  left: 0px;
+}
+
+.username {
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
 }
 
 .func {
@@ -43,7 +85,202 @@ body {
   background-color: #827cf8;
 }
 
-.mainContent {
+.mainFun {
   width: 80%;
+  margin-top: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.allNotes__outlayer,
+.sharedNotes__outlayer {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+
+.mainFun span {
+  font-size: 30px;
+  font-weight: 600;
+  color: rgb(107, 104, 104);
+  border-radius: 10px;
+}
+
+.allNotes__outlayer:hover {
+  background-color: #564dff;
+}
+
+.sharedNotes__outlayer:hover {
+  background-color: #564dff;
+}
+
+.allNotes__outlayer:hover span {
+  color: white;
+}
+
+.sharedNotes__outlayer:hover span {
+  color: white;
+}
+
+.logout {
+  width: 80%;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.logout__content {
+  font-size: 30px;
+  font-weight: 700;
+  color: rgb(107, 104, 104);
+  padding: 10px;
+}
+
+#loggout {
+  font-weight: 700;
+  color: rgb(107, 104, 104);
+}
+
+.logout:hover {
+  background-color: #564dff;
+}
+
+.logout:hover span {
+  color: white;
+}
+
+.logout:hover #loggout {
+  color: white;
+}
+
+.mainContent {
+  width: 82%;
   height: 100vh;
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.title {
+  width: 90%;
+  height: 10%;
+  padding: 10px;
+  font-size: 30px;
+  font-weight: 600;
+  color: rgb(73, 70, 70);
+  border-bottom: solid 3px rgb(207, 205, 205);
+  display: flex;
+  align-items: center;
+}
+
+.content {
+  width: 90%;
+  height: 90%;
+}
+
+.note {
+  max-width: 1200px;
+  height: 90%;
+  padding: 10px;
+  background-color: #f5f5f5;
+  margin: 40px auto;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.noteSon {
+  height: 50%;
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.noteSon:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.btnBox {
+  display: flex;
+  justify-content: space-between;
+}
+
+.coverlayer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  display: none;
+}
+
+.popup {
+  /* width: 340px; */
+  padding: 15px;
+  background-color: white;
+  position: fixed;
+  top: 15%;
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
+}
+
+.state--off {
+  display: none;
+}
+
+.state--on {
+  display: flex;
+}
+
+.shared {
+  display: inline-block;
+}
+
+.topbar__popup {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+#close {
+  background-color: white;
+  border: white;
+  cursor: pointer;
+}
+
+.shareContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#shareEmail {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
