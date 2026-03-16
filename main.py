@@ -25,4 +25,8 @@ async def dashboard_page(request: Request):
 @app.get("/note/{note_id}", include_in_schema=False)
 async def note_page(request: Request):
     return FileResponse("./statics/note_page.html")
+
+@app.get("/overview", include_in_schema=False)
+async def overview_page(request:Request):
+    return FileResponse("./statics/overview_page.html")
 	
