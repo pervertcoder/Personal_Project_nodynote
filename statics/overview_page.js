@@ -154,14 +154,16 @@ const renderDomSelf = function (data) {
     noteTitle.setAttribute("data-id", `data${data[i][0]}`);
     const btnBox = document.createElement("div");
     btnBox.classList.add("btnBox");
-    const permissionBtn = document.createElement("button");
+    const permissionBtn = document.createElement("span");
     permissionBtn.classList.add("noteBtn");
+    permissionBtn.classList.add("material-symbols-outlined");
     permissionBtn.setAttribute("data-permission", `permissionBtn${data[i][0]}`);
-    permissionBtn.textContent = "分享權限";
-    const deleteBtn = document.createElement("button");
+    permissionBtn.textContent = "link";
+    const deleteBtn = document.createElement("span");
     deleteBtn.classList.add("delete_btn");
+    deleteBtn.classList.add("material-symbols-outlined");
     deleteBtn.setAttribute("data-delete", `deleteBtn${data[i][0]}`);
-    deleteBtn.textContent = "刪除";
+    deleteBtn.textContent = "delete";
 
     noteBar.appendChild(createNoteSon);
     createNoteSon.appendChild(noteTitle);
