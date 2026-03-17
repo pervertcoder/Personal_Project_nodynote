@@ -208,6 +208,10 @@ body {
   gap: 25px;
 }
 
+.data__state--off {
+  display: none;
+}
+
 .noteSon {
   min-height: 100px;
   height: auto;
@@ -230,6 +234,22 @@ body {
 .btnBox {
   display: flex;
   justify-content: space-between;
+}
+
+.noteBtn {
+  border-radius: 10px;
+}
+
+.noteBtn:hover {
+  background-color: #d7d8da;
+}
+
+.delete_btn {
+  border-radius: 10px;
+}
+
+.delete_btn:hover {
+  background-color: #d7d8da;
 }
 
 .coverlayer {

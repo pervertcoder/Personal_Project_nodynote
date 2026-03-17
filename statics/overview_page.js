@@ -158,10 +158,12 @@ const renderDomSelf = function (data) {
     permissionBtn.classList.add("noteBtn");
     permissionBtn.classList.add("material-symbols-outlined");
     permissionBtn.setAttribute("data-permission", `permissionBtn${data[i][0]}`);
+    permissionBtn.setAttribute("title", "分享");
     permissionBtn.textContent = "link";
     const deleteBtn = document.createElement("span");
     deleteBtn.classList.add("delete_btn");
     deleteBtn.classList.add("material-symbols-outlined");
+    deleteBtn.setAttribute("title", "刪除");
     deleteBtn.setAttribute("data-delete", `deleteBtn${data[i][0]}`);
     deleteBtn.textContent = "delete";
 
@@ -267,21 +269,28 @@ const getNoteDataShare = async function () {
 // 功能按鈕
 const mynote = document.getElementById("mynote");
 mynote.addEventListener("click", () => {
+  const noData = document.querySelector(".nodata");
+  const titleName = document.querySelector(".titleName");
   const note = document.querySelector(".note");
   const noteSons = document.querySelectorAll(".noteSon");
   for (let son of noteSons) {
     note.removeChild(son);
   }
-  window.location.reload();
+  noData.classList.add("data__state--off");
+  titleName.textContent = "My Notes";
+  getNoteDataSelf();
+  // window.location.reload();
 });
 
 const sharednote = document.getElementById("sharednote");
 sharednote.addEventListener("click", async () => {
+  const titleName = document.querySelector(".titleName");
   const note = document.querySelector(".note");
   const noteSons = document.querySelectorAll(".noteSon");
   for (let son of noteSons) {
     note.removeChild(son);
   }
+  titleName.textContent = "Shared Notes";
   getNoteDataShare();
 });
 
