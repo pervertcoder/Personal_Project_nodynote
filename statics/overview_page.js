@@ -355,7 +355,7 @@ onlyReadNote.addEventListener("click", async () => {
     note.removeChild(son);
   }
   noData.classList.add("data__state--off");
-  titleName.textContent = "Shared Notes";
+  titleName.textContent = "Read Only Notes";
   getNoteDataShare("viewer");
 });
 
