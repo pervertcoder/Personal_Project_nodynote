@@ -64,3 +64,18 @@ loginBtn.addEventListener("click", async () => {
     console.log("帳號密碼錯誤");
   }
 });
+
+const select = document.getElementById("role");
+select.addEventListener("change", () => {
+  const role = select.value;
+
+  if (role === "tester1") {
+    document.getElementById("email_login").value = "test1@test.com";
+    document.getElementById("password_login").value = "123";
+  }
+
+  if (role === "tester2") {
+    document.getElementById("email_login").value = "test2@test.com";
+    document.getElementById("password_login").value = "456";
+  }
+});

@@ -35,7 +35,7 @@
       </div>
     </div>
     <div class="online__popup online__popup--off"></div>
-    <label for="note">記下你的筆記</label>
+    <label for="note" id="remember">記下你的筆記</label>
     <div class="titleName">
       <p class="noteName">筆記名字</p>
 
@@ -57,8 +57,11 @@
     <div class="coverlayer state--off">
       <div class="popup">
         <div class="topbar__popup">
+          <div class="topbar__blank"></div>
           <p class="shared">分享編輯權限</p>
-          <button type="button" id="close">X</button>
+          <div class="button__closed--outlayer">
+            <button type="button" id="close">X</button>
+          </div>
         </div>
         <div class="shareContent">
           <p class="sharedEmail">請輸入分享對象的電子郵件</p>
@@ -68,7 +71,15 @@
             id="shareEmail"
             placeholder="請輸入分享對象的電子郵件"
           />
-          <button type="button" id="sumbit">送出</button>
+          <div class="radio">
+            <label>
+              <input type="radio" name="role" value="editor" />editor
+            </label>
+            <label>
+              <input type="radio" name="role" value="viewer" />viewer
+            </label>
+          </div>
+          <button type="button" id="submit">Send</button>
         </div>
       </div>
     </div>

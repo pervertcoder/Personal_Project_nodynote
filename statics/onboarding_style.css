@@ -97,10 +97,29 @@ img {
 
 .error {
   width: 100%;
-  margin-top: 100px;
+  margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.tester {
+  width: 100%;
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#role {
+  margin-top: 20px;
+}
+
+select {
+  border: none;
+  outline: none;
+  cursor: pointer;
 }
 
 .error-message {
@@ -110,7 +129,7 @@ img {
 }
 
 .submit {
-  margin-top: 100px;
+  margin-top: 50px;
   margin-bottom: 10px;
   display: flex;
   justify-content: center;

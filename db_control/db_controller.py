@@ -173,11 +173,11 @@ def check_shared_user(email:str):
     return result[0][0]
 
 # 新增權限
-def add_permission(note_id:str, user_id:int):
+def add_permission(note_id:str, user_id:int, role:str):
     conn = get_db_connect()
     mycursor = conn.cursor()
-    sql = "insert into note_permissions (note_id, user_id, role) values (%s, %s, 'editor')"
-    param = (note_id, user_id)
+    sql = "insert into note_permissions (note_id, user_id, role) values (%s, %s, %s)"
+    param = (note_id, user_id, role)
     mycursor.execute(sql, param)
     conn.commit()
     # result = mycursor.fetchall()

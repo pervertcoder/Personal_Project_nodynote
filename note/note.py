@@ -170,6 +170,7 @@ def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(
         raise HTTPException(status_code=401, detail="未登入")
     try:
         payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+        shared_role = request.role
         user_email = payload["email"]
         user = User(user_email)
         check_data = user.get_user_data()
@@ -178,7 +179,7 @@ def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(
 
         share_user_id = check_shared_user(request.email)
         if role == "owner" and share_user_id:
-            add_permission(note_id, share_user_id)
+            add_permission(note_id, share_user_id, shared_role)
             return sharedNoteResponse(ok=True)
         return JSONResponse(status_code=403, content={
 			'error': True,

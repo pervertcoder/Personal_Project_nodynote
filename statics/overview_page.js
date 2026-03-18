@@ -89,7 +89,7 @@ newNote.addEventListener("click", async () => {
 const openShareModal = function (noteId) {
   const modal = document.querySelector(".coverlayer");
   const close = document.getElementById("close");
-  const submit = document.getElementById("sumbit");
+  const submit = document.getElementById("submit");
 
   modal.dataset.modalid = noteId;
   submit.dataset.submitid = noteId;
@@ -113,17 +113,20 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // 傳分享資料;
-const submit = document.getElementById("sumbit");
+const submit = document.getElementById("submit");
 submit.addEventListener("click", async () => {
   const shareEmail = document.getElementById("shareEmail").value.trim();
+  const role = document.querySelector('input[name="role"]:checked');
   const note_id = submit.dataset.submitid.slice(4);
-  if (!shareEmail) {
-    alert("請輸入信箱");
+  if (!shareEmail || role === null) {
+    alert("請輸入信箱或選擇權限角色");
     return;
   } else {
     const payload = {
       email: shareEmail,
+      role: role.value,
     };
+    // console.log(payload);
     const url = `/api/note/share_note/${note_id}`;
     const request = await fetch(url, {
       method: "POST",
@@ -137,7 +140,7 @@ submit.addEventListener("click", async () => {
     const response = await request.json();
     console.log(response);
 
-    // window.location.reload();
+    window.location.reload();
   }
 });
 
@@ -152,6 +155,8 @@ const renderDomSelf = function (data) {
     const noteTitle = document.createElement("p");
     noteTitle.classList.add("noteTitle");
     noteTitle.setAttribute("data-id", `data${data[i][0]}`);
+    const blankSon = document.createElement("div");
+    blankSon.classList.add("blank__son");
     const btnBox = document.createElement("div");
     btnBox.classList.add("btnBox");
     const permissionBtn = document.createElement("span");
@@ -169,6 +174,7 @@ const renderDomSelf = function (data) {
 
     noteBar.appendChild(createNoteSon);
     createNoteSon.appendChild(noteTitle);
+    createNoteSon.appendChild(blankSon);
     createNoteSon.appendChild(btnBox);
     btnBox.appendChild(permissionBtn);
     btnBox.appendChild(deleteBtn);
@@ -178,6 +184,11 @@ const renderDomSelf = function (data) {
     noteTitle.addEventListener("click", () => {
       const id = noteTitle.dataset.id;
       // console.log(id);
+      window.location.href = `/note/${id.slice(4)}`;
+    });
+
+    blankSon.addEventListener("click", () => {
+      const id = noteTitle.dataset.id;
       window.location.href = `/note/${id.slice(4)}`;
     });
 

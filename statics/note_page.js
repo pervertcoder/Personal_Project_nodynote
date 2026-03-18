@@ -893,17 +893,19 @@ const openShareModal = function () {
 
 share.addEventListener("click", openShareModal);
 // 傳分享資料;
-const submit = document.getElementById("sumbit");
+const submit = document.getElementById("submit");
 submit.addEventListener("click", async () => {
   const modal = document.querySelector(".coverlayer");
   let shareEmail = document.getElementById("shareEmail").value.trim();
+  const role = document.querySelector('input[name="role"]:checked');
   const note_id = window.location.pathname.slice(6);
-  if (!shareEmail) {
+  if (!shareEmail || role === null) {
     alert("請輸入信箱");
     return;
   } else {
     const payload = {
       email: shareEmail,
+      role: role.value,
     };
     const url = `/api/note/share_note/${note_id}`;
     const request = await fetch(url, {

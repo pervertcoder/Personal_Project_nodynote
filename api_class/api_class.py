@@ -59,6 +59,7 @@ class note_delete(BaseModel):
 
 class sharedNoteRequest(BaseModel):
     email : str
+    role : str
 
 class sharedNoteResponse(BaseModel):
     ok : bool
