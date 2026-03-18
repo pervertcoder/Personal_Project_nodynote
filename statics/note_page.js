@@ -27,6 +27,8 @@ const checkState = async function () {
     if (response.note[0][2] === "owner") {
       icon.classList.remove("symbol__state--off");
       icon.classList.add("symbol__state--on");
+    } else if (response.note[0][2] === "viewer") {
+      console.log("I am viewer");
     }
   } else {
     window.location.href = "/dashboard";

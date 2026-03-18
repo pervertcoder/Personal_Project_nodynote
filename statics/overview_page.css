@@ -98,7 +98,8 @@ body {
 }
 
 .allNotes__outlayer,
-.sharedNotes__outlayer {
+.sharedNotes__outlayer,
+.onlyReadNotes__outlayer {
   width: 100%;
   margin: 10px 0;
   padding: 10px;
@@ -124,12 +125,28 @@ body {
   background-color: #564dff;
 }
 
+.onlyReadNotes__outlayer:hover {
+  background-color: #564dff;
+}
+
 .allNotes__outlayer:hover span {
   color: white;
 }
 
 .sharedNotes__outlayer:hover span {
   color: white;
+}
+
+.onlyReadNotes__outlayer:hover span {
+  color: white;
+}
+
+.locker_text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: red;
+  font-weight: 700;
 }
 
 .logout {

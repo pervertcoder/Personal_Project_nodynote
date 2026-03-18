@@ -238,6 +238,42 @@ const renderDomShare = function (data) {
   }
 };
 
+const renderDomOnly = function (data) {
+  for (let i = 0; i < data.length; i++) {
+    const createNoteSon = document.createElement("div");
+    createNoteSon.classList.add("noteSon");
+    createNoteSon.setAttribute("data-noteid", `note${data[i][0]}`);
+    const noteTitle = document.createElement("p");
+    noteTitle.classList.add("noteTitle");
+    noteTitle.setAttribute("data-id", `data${data[i][0]}`);
+    const blankSon = document.createElement("div");
+    blankSon.classList.add("blank__son");
+    const btnBox = document.createElement("div");
+    btnBox.classList.add("btnBox");
+    const locker = document.createElement("div");
+    locker.classList.add("locker");
+    locker.classList.add("material-symbols-outlined");
+    locker.innerText = "lock";
+    const locker_text = document.createElement("p");
+    locker_text.classList.add("locker_text");
+    locker_text.innerText = "ReadOnly";
+
+    noteBar.appendChild(createNoteSon);
+    createNoteSon.appendChild(noteTitle);
+    createNoteSon.appendChild(blankSon);
+    createNoteSon.appendChild(btnBox);
+    btnBox.appendChild(locker);
+    btnBox.appendChild(locker_text);
+
+    // 點擊進入note頁面
+    noteTitle.textContent = data[i][1];
+    noteTitle.addEventListener("click", () => {
+      const id = noteTitle.dataset.id;
+      window.location.href = `/note/${id.slice(4)}`;
+    });
+  }
+};
+
 const getNoteDataSelf = async function () {
   const role = "owner";
   const url = `/api/note/note_data_render/${role}`;
@@ -258,8 +294,8 @@ const getNoteDataSelf = async function () {
 };
 getNoteDataSelf();
 
-const getNoteDataShare = async function () {
-  const role = "editor";
+const getNoteDataShare = async function (role) {
+  // const role = "editor";
   const url = `/api/note/note_data_render/${role}`;
   const request = await fetch(url, {
     method: "GET",
@@ -270,8 +306,10 @@ const getNoteDataShare = async function () {
   console.log(response);
 
   const noData = document.querySelector(".nodata");
-  if (response.data) {
+  if (response.data && role === "editor") {
     renderDomShare(response.data);
+  } else if (response.data && role === "viewer") {
+    renderDomOnly(response.data);
   } else {
     noData.classList.remove("data__state--off");
   }
@@ -295,14 +333,30 @@ mynote.addEventListener("click", () => {
 
 const sharednote = document.getElementById("sharednote");
 sharednote.addEventListener("click", async () => {
+  const noData = document.querySelector(".nodata");
   const titleName = document.querySelector(".titleName");
   const note = document.querySelector(".note");
   const noteSons = document.querySelectorAll(".noteSon");
   for (let son of noteSons) {
     note.removeChild(son);
   }
+  noData.classList.add("data__state--off");
   titleName.textContent = "Shared Notes";
-  getNoteDataShare();
+  getNoteDataShare("editor");
+});
+
+const onlyReadNote = document.getElementById("onlyRnote");
+onlyReadNote.addEventListener("click", async () => {
+  const noData = document.querySelector(".nodata");
+  const titleName = document.querySelector(".titleName");
+  const note = document.querySelector(".note");
+  const noteSons = document.querySelectorAll(".noteSon");
+  for (let son of noteSons) {
+    note.removeChild(son);
+  }
+  noData.classList.add("data__state--off");
+  titleName.textContent = "Shared Notes";
+  getNoteDataShare("viewer");
 });
 
 // 登出
