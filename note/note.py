@@ -51,8 +51,8 @@ def note_content_render (note_id, access_token : str = Cookie(None)):
         user_data = check_data[0]
         note_data = check_permission(note_id, user_data[0])
         if note_data:
-            if note_data[0][2] == "owner" or note_data[0][2] == "editor":
-                return note_render_request(user_data=user_data, note=note_data)
+            # if note_data[0][2] == "owner" or note_data[0][2] == "editor":
+            return note_render_request(user_data=user_data, note=note_data)
         else:
             return JSONResponse(status_code=403, content={
                 "error" : True,

@@ -69,6 +69,7 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
         asyncio.create_task(save_DB(note_id))
     
     note_connection = active_notes[note_id]
+    role = user_permission["note"][0][2]
     init_name = user_permission["user_info"][1][0]
     full_name = user_permission["user_info"][1]
     color = user_permission["user_info"][4]
@@ -81,6 +82,7 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
         "type" : "content",
         "name" : note_connection["name"],
         "content" : note_connection["content"],
+        "role" : role,
         "activeUsers" : list(note_connection["connection"].values())
     })
 
@@ -167,6 +169,7 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                 
                 await websocket.send_json({
                     "type" : "ack_insert",
+                    "role" : role,
                     "content" : {
                         "lineIndex" : index
                     }

@@ -26,7 +26,7 @@ body {
   width: 30%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: end;
   position: relative;
 }
 
@@ -169,8 +169,29 @@ body {
 }
 
 .remember {
-  margin-top: 20px;
+  margin-top: 100px;
   display: none;
+}
+
+.restrict {
+  margin-top: 70px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.restrict--off {
+  display: none;
+}
+
+.onlyRead {
+  color: red;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+#locker {
+  color: red;
 }
 
 .titleName {
@@ -270,6 +291,7 @@ body {
 
 .block {
   display: block;
+  min-height: 16px;
   margin-top: 10px;
   margin-bottom: 10px;
   font-size: 16px;

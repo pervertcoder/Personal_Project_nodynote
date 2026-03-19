@@ -1,5 +1,15 @@
 "use strict";
 
+const createBlock = function (text, index, version, role) {
+  const div = document.createElement("div");
+  div.className = "block";
+  div.contentEditable = role !== "viewer";
+  div.innerText = text || "";
+  div.dataset.index = index;
+  div.dataset.version = version || 0;
+  return div;
+};
+
 // JWT驗證
 const title = document.getElementById("title");
 let note_name = document.getElementById("note_name");
@@ -7,6 +17,7 @@ let note = document.getElementById("note");
 const token = localStorage.getItem("JWTtoken");
 const id = window.location.pathname.slice(6);
 const icon = document.querySelector(".share_icon_outlayer");
+const restrict = document.querySelector(".restrict");
 const checkState = async function () {
   const url = `/api/note/note_content_render/${id}`;
   const request = await fetch(url, {
@@ -20,20 +31,26 @@ const checkState = async function () {
   if (response.note) {
     note_name.value = response.note[0][0];
     title.innerText = response.note[0][0];
-    const contentArray = JSON.parse(response.note[0][1]);
-    const lines = contentArray.map((line) => line.text);
-    note.value = lines.join("\n");
 
-    if (response.note[0][2] === "owner") {
+    const role = response.note[0][2];
+
+    if (role === "owner") {
+      // userRole = "can_write";
       icon.classList.remove("symbol__state--off");
       icon.classList.add("symbol__state--on");
-    } else if (response.note[0][2] === "viewer") {
-      console.log("I am viewer");
+    } else if (role === "editor") {
+      // userRole = "can_write";
+    } else if (role === "viewer") {
+      // userRole = "viewer";
+      restrict.classList.remove("restrict--off");
     }
+    return role;
   } else {
     window.location.href = "/dashboard";
+    return null;
   }
 };
+
 checkState();
 
 // 顯示人數popup視窗
@@ -207,6 +224,7 @@ const updateUserStatus = function () {
 // let lineVersions = [];
 
 let lines2 = [];
+let userRole = null;
 const websocketLink = window.location.hostname;
 const ws = new WebSocket(`ws://${websocketLink}:8000/ws/note/${id}`);
 ws.onopen = () => {
@@ -217,16 +235,15 @@ const selfDeleteIndex = new Set();
 
 ws.onmessage = (event) => {
   const data = JSON.parse(event.data);
-  // console.log(data);
 
   if (data.type === "name") {
-    // note_name.value = data.name;
     title.innerText = data.content.newName;
   } else if (data.type === "content") {
     activeUsers = data.activeUsers;
     console.log(activeUsers);
     lines2 = data.content;
-    render(lines2);
+    userRole = data.role;
+    render(lines2, userRole);
     refreshLineNumber();
 
     // 顯示在線人數
@@ -360,7 +377,8 @@ ws.onmessage = (event) => {
       if (!block) {
         block = document.createElement("div");
         block.className = "block";
-        block.contentEditable = true;
+        block.contentEditable = userRole !== "viewer";
+        // block.contentEditable = true;
         block.dataset.index = currentIndex;
         block.dataset.version = 0;
         block.innerText = lineText;
@@ -392,7 +410,8 @@ ws.onmessage = (event) => {
 
       block = document.createElement("div");
       block.className = "block";
-      block.contentEditable = true;
+      block.contentEditable = userRole !== "viewer";
+      // block.contentEditable = true;
       block.dataset.index = lineIndex;
       block.dataset.version = version;
 
@@ -407,18 +426,22 @@ ws.onmessage = (event) => {
     block.dataset.version = version;
   } else if (data.type === "insert_line") {
     const { lineIndex, text, version } = data.content;
+    const role = data.role;
     if (selfInsertIndex.has(lineIndex)) {
       selfInsertIndex.delete(lineIndex);
       return;
     }
     const editor = document.getElementById("editor");
 
-    const div = document.createElement("div");
-    div.className = "block";
-    div.contentEditable = true;
-    div.innerText = text;
-    div.dataset.index = lineIndex;
-    div.dataset.version = version;
+    const div = createBlock(text, lineIndex, version, role);
+    // const div = document.createElement("div");
+    // div.className = "block";
+    // //更改的地方
+    // div.contentEditable = userRole !== "viewer";
+    // // div.contentEditable = true;
+    // div.innerText = text;
+    // div.dataset.index = lineIndex;
+    // div.dataset.version = version;
 
     const blocks = editor.querySelectorAll(".block");
 
@@ -464,7 +487,8 @@ ws.onmessage = (event) => {
         // 如果該行不存在，新增一個 block
         block = document.createElement("div");
         block.className = "block";
-        block.contentEditable = true;
+        block.contentEditable = userRole !== "viewer";
+        // block.contentEditable = true;
         block.dataset.index = currentIndex;
         block.dataset.version = 0;
         block.innerText = lineText;
@@ -592,14 +616,15 @@ note.addEventListener("input", () => {
   contentTimeout = setTimeout(diffLogic, 200);
 });
 
-const render = function (lines) {
+const render = function (lines, userRole) {
   const editor = document.getElementById("editor");
   editor.innerHTML = "";
 
   lines.forEach((line, index) => {
     const div = document.createElement("div");
     div.className = "block";
-    div.contentEditable = true;
+    div.contentEditable = userRole !== "viewer";
+    // div.contentEditable = true;
     div.innerText = line.text;
     // div.innerText = `${index + 1}. ${line.text}`;
     div.dataset.index = index;
@@ -618,7 +643,8 @@ const refreshLineNum = function () {
   });
 };
 
-const splitLine = function (block) {
+const splitLine = function (block, role) {
+  if (role === "viewer") return;
   const index = parseInt(block.dataset.index);
   const text = block.innerText;
 
@@ -633,7 +659,8 @@ const splitLine = function (block) {
 
   const newBlock = document.createElement("div");
   newBlock.className = "block";
-  newBlock.contentEditable = true;
+  newBlock.contentEditable = userRole !== "viewer";
+  // newBlock.contentEditable = true;
   newBlock.innerText = afterText || " ";
   newBlock.dataset.index = index + 1;
   newBlock.dataset.version = 0;
@@ -660,11 +687,24 @@ const splitLine = function (block) {
   };
 };
 
+if (userRole === "viewer") {
+  editor.addEventListener("keydown", (e) => {
+    e.preventDefault();
+  });
+  editor.addEventListener("input", (e) => {
+    e.preventDefault();
+  });
+  editor.addEventListener("paste", (e) => {
+    e.preventDefault();
+  });
+}
+
 const debouceTimers = {};
 const MAX_CHARS_PER_LINE = 50;
 editor.addEventListener("input", (e) => {
   const block = e.target.closest(".block");
   if (!block) return;
+  if (block.contentEditable === false) return;
   // const index = parseInt(block.dataset.index);
   // const text = block.innerText;
 
@@ -672,7 +712,6 @@ editor.addEventListener("input", (e) => {
   while (currentBlock.innerText.length >= MAX_CHARS_PER_LINE) {
     const { before, afterText, index } = splitLine(currentBlock);
     currentBlock = currentBlock.nextElementSibling;
-
     ws.send(
       JSON.stringify({
         type: "updated_line",
@@ -722,6 +761,7 @@ editor.addEventListener("keydown", (e) => {
     e.preventDefault();
     const block = e.target.closest(".block");
     if (!block) return;
+    if (block.contentEditable === false) return;
 
     const { before, afterText, index } = splitLine(block);
 
@@ -755,6 +795,7 @@ editor.addEventListener("keydown", (e) => {
   if (e.key === "Backspace") {
     const block = e.target.closest(".block");
     if (!block) return;
+    if (block.contentEditable === false) return;
 
     const index = parseInt(block.dataset.index);
     const selection = window.getSelection();
@@ -836,7 +877,8 @@ editor.addEventListener("paste", (e) => {
   allLines.forEach((lineText) => {
     const newBlock = document.createElement("div");
     newBlock.className = "block";
-    newBlock.contentEditable = true;
+    newBlock.contentEditable = userRole !== "viewer";
+    // newBlock.contentEditable = true;
     newBlock.innerText = lineText;
     newBlock.dataset.version = 0;
 

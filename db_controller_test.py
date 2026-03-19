@@ -10,8 +10,8 @@ def get_member_data(email):
     conn.close()
     return result
 
-ans = get_member_data("test1@test.com")
-print(ans[0][3])
+# ans = get_member_data("test1@test.com")
+# print(ans[0][3])
 
 def get_member_name(user_id):
     conn = get_db_connect()
@@ -49,8 +49,8 @@ def check_permission(note_id, user_id):
     conn.close()
     return result[0]
 
-# ans3 = check_permission(1, 1)
-# print(ans3)
+ans3 = check_permission(12, 1)
+print(ans3)
 
 def render_note_data(user_id):
     conn = get_db_connect()
