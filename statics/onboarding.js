@@ -79,10 +79,10 @@ select.addEventListener("change", () => {
     document.getElementById("password_login").value = "456";
   }
 
-  if (role === "tester3") {
-    document.getElementById("email_login").value = "test3@test.com";
-    document.getElementById("password_login").value = "753";
-  }
+  // if (role === "tester3") {
+  //   document.getElementById("email_login").value = "test3@test.com";
+  //   document.getElementById("password_login").value = "753";
+  // }
 
   if (role === "ply") {
     document.getElementById("email_login").value = "ply@ply.com";
