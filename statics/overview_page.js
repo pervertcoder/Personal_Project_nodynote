@@ -225,13 +225,21 @@ const renderDomShare = function (data) {
     const noteTitle = document.createElement("p");
     noteTitle.classList.add("noteTitle");
     noteTitle.setAttribute("data-id", `data${data[i][0]}`);
+    const blankSon = document.createElement("div");
+    blankSon.classList.add("blank__son");
 
     noteBar.appendChild(createNoteSon);
     createNoteSon.appendChild(noteTitle);
+    createNoteSon.appendChild(blankSon);
 
     // 點擊進入note頁面
     noteTitle.textContent = data[i][1];
     noteTitle.addEventListener("click", () => {
+      const id = noteTitle.dataset.id;
+      window.location.href = `/note/${id.slice(4)}`;
+    });
+
+    blankSon.addEventListener("click", () => {
       const id = noteTitle.dataset.id;
       window.location.href = `/note/${id.slice(4)}`;
     });
@@ -268,6 +276,11 @@ const renderDomOnly = function (data) {
     // 點擊進入note頁面
     noteTitle.textContent = data[i][1];
     noteTitle.addEventListener("click", () => {
+      const id = noteTitle.dataset.id;
+      window.location.href = `/note/${id.slice(4)}`;
+    });
+
+    blankSon.addEventListener("click", () => {
       const id = noteTitle.dataset.id;
       window.location.href = `/note/${id.slice(4)}`;
     });
