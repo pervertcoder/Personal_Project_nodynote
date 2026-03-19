@@ -74,6 +74,7 @@ body {
 #newNote {
   width: 100%;
   height: 35px;
+  padding: 20px;
   background-color: #564dff;
   border: #564dff solid 0.5px;
   color: white;
@@ -86,6 +87,11 @@ body {
 
 #newNote:hover {
   background-color: #827cf8;
+}
+
+#newNote span {
+  font-weight: 700;
+  font-size: 20px;
 }
 
 .mainFun {

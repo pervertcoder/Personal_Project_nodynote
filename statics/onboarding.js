@@ -65,27 +65,22 @@ loginBtn.addEventListener("click", async () => {
   }
 });
 
+const testSuffix = "@test.com";
+const accounts = {
+  tester1: { email: `test1${testSuffix}`, password: "123" },
+  tester2: { email: `test2${testSuffix}`, password: "456" },
+  ply: { email: "ply@ply.com", password: "ply" },
+};
+
 const select = document.getElementById("role");
 select.addEventListener("change", () => {
   const role = select.value;
 
-  if (role === "tester1") {
-    document.getElementById("email_login").value = "test1@test.com";
-    document.getElementById("password_login").value = "123";
-  }
-
-  if (role === "tester2") {
-    document.getElementById("email_login").value = "test2@test.com";
-    document.getElementById("password_login").value = "456";
-  }
-
-  // if (role === "tester3") {
-  //   document.getElementById("email_login").value = "test3@test.com";
-  //   document.getElementById("password_login").value = "753";
-  // }
-
-  if (role === "ply") {
-    document.getElementById("email_login").value = "ply@ply.com";
-    document.getElementById("password_login").value = "ply";
+  if (role === "choose") {
+    document.getElementById("email_login").value = "";
+    document.getElementById("password_login").value = "";
+  } else if (accounts[role]) {
+    document.getElementById("email_login").value = accounts[role].email;
+    document.getElementById("password_login").value = accounts[role].password;
   }
 });
