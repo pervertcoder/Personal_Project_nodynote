@@ -1,5 +1,5 @@
 from mysql.connector import pooling
-from env_settings.env import DB_HOST, DB_USER, DB_PASSWORD
+from env_settings.env import DB_HOST, DB_USER, DB_PASSWORD, DB_HOST_RDS, DB_PASSWORD_RDS, DB_USER_RDS
 
 pool = pooling.MySQLConnectionPool(
     pool_name="mypool",
