@@ -14,7 +14,7 @@ app.include_router(websocket_router)
 
 app.mount("/statics", StaticFiles(directory="statics"))
 # Static Pages
-@app.get("/")
+@app.get("/", include_in_schema=False)
 async def index(request: Request):
     return FileResponse("./statics/onboarding_index.html", media_type="text/html")
 
@@ -33,3 +33,7 @@ async def overview_page(request:Request):
 @app.get("/onboarding", include_in_schema=False)
 async def overview_page(request:Request):
     return FileResponse("./statics/onboarding_index.html")
+
+@app.get("/regist", include_in_schema=False)
+async def regist(request:Request):
+    return FileResponse("./statics/welcome_page.html")
