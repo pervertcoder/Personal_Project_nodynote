@@ -225,8 +225,10 @@ const updateUserStatus = function () {
 
 let lines2 = [];
 let userRole = null;
-const websocketLink = window.location.hostname;
-const ws = new WebSocket(`ws://${websocketLink}:8000/ws/note/${id}`);
+const websocketProtocal = window.location.protocol === "https" ? "wss" : "ws";
+const ws = new WebSocket(
+  `&{websocketProtocal}://${window.location.host}/ws/note/${id}`,
+);
 ws.onopen = () => {
   console.log("websocket已連線");
 };
