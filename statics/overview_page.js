@@ -32,8 +32,24 @@ const startCountdown = function (ms) {
   let remaining = ms;
 
   countdownTimer = setInterval(() => {
-    remaining -= 1000;
-  });
+    remaining -= 1000 * 60;
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+
+    console.log(`Token 剩餘時間 ${minutes}分${seconds}秒`);
+
+    if (remaining <= 10 * 60 * 1000) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+      alert("你的憑證快到期，請重新登入");
+      window.location.href = "/";
+    }
+
+    if (remaining <= 0) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+  }, 1000 * 60);
 };
 
 // JWT驗證
@@ -69,6 +85,9 @@ const checkState = async function () {
   });
 };
 checkState();
+
+checkToken();
+tokenCheckInterval = setInterval(checkToken, 60 * 60 * 1000);
 
 // 更改顏色
 

@@ -964,6 +964,11 @@ submit.addEventListener("click", async () => {
     const response = await request.json();
     console.log(response);
 
+    if (response.message === "資料重複") {
+      alert("權限重複寫入");
+      return;
+    }
+
     // shareEmail = "";
     modal.classList.remove("state--on");
     // window.location.reload();
