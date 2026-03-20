@@ -5,6 +5,37 @@ window.addEventListener("pageshow", (event) => {
   }
 });
 
+// 定時檢查token是否過期
+let tokenCheckInterval = null;
+let countdownTimer = null;
+
+const checkToken = async function () {
+  const url = "/api/auth/check_token";
+  try {
+    const request = await fetch(url);
+    const response = await request.json();
+    if (!response?.exp_time) return;
+
+    const expireTime = response.exp_time * 1000;
+    const now = Date.now();
+    const remaining = expireTime - now;
+
+    if (remaining < 60 * 60 * 1000 && !countdownTimer) {
+      startCountdown(remaining);
+    }
+  } catch (err) {
+    console.warn("token檢查失敗", err);
+  }
+};
+
+const startCountdown = function (ms) {
+  let remaining = ms;
+
+  countdownTimer = setInterval(() => {
+    remaining -= 1000;
+  });
+};
+
 // JWT驗證
 const token = localStorage.getItem("JWTtoken");
 let userName = document.querySelector(".username");
@@ -139,6 +170,10 @@ submit.addEventListener("click", async () => {
 
     const response = await request.json();
     console.log(response);
+    if (response.message === "資料重複") {
+      alert("權限重複寫入");
+      return;
+    }
 
     window.location.reload();
   }

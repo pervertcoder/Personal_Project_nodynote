@@ -179,8 +179,14 @@ def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(
 
         share_user_id = check_shared_user(request.email)
         if role == "owner" and share_user_id:
-            add_permission(note_id, share_user_id, shared_role)
-            return sharedNoteResponse(ok=True)
+            result = add_permission(note_id, share_user_id, shared_role)
+            if result:
+                return sharedNoteResponse(ok=True)
+            else:
+                return JSONResponse(status_code=409, content={
+                    'error' : True,
+                    'message' : '資料重複'
+                })
         return JSONResponse(status_code=403, content={
 			'error': True,
 			'message': '權限不足'

@@ -7,8 +7,9 @@ body {
 }
 
 .content__login {
-  width: 50%;
-  height: 80%;
+  width: 60%;
+  max-height: 100%;
+  /* margin: auto auto; */
   padding: 10px;
   box-sizing: border-box;
   display: flex;

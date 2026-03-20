@@ -74,6 +74,19 @@ def get_user_data(access_token:str = Cookie(None)):
 			'message': 'Token 無效，請重新登入'
         })
     
+@router.get("/check_token")
+def check_token(access_token:str = Cookie(None)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="未登入")
+    try:
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+        exp_time = payload["exp"]
+        return {"ok" : True, "exp_time" : exp_time}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="token已過期")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="token無效")
+    
 @router.post("/color", response_model=colorUpdateResponse)
 def color_updating(request:colorUpdateResquest):
     email = request.user_email
