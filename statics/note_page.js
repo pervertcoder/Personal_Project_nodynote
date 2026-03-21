@@ -227,7 +227,7 @@ let lines2 = [];
 let userRole = null;
 const websocketProtocal = window.location.protocol === "https" ? "wss" : "ws";
 const ws = new WebSocket(
-  `&{websocketProtocal}://${window.location.host}/ws/note/${id}`,
+  `${websocketProtocal}://${window.location.host}/ws/note/${id}`,
 );
 ws.onopen = () => {
   console.log("websocket已連線");
