@@ -2,6 +2,7 @@ body {
   height: 100vh;
   background-color: #f6c49f;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 }
@@ -64,6 +65,7 @@ img {
   border-radius: 10px;
 }
 
+.name,
 .mail,
 .password {
   margin-top: 50px;
@@ -73,6 +75,7 @@ img {
   align-items: center;
 }
 
+.name-word,
 .mail-word,
 .password-word {
   width: 80%;
@@ -96,12 +99,17 @@ img {
   border-bottom: 2px solid #4f46e5;
 }
 
-.error {
+.error-login,
+.error-regist {
   width: 100%;
   margin-top: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.error--off {
+  display: none;
 }
 
 .tester {
@@ -123,21 +131,23 @@ select {
   cursor: pointer;
 }
 
-.error-message {
+.error-message-login,
+.error-message-regist {
   font-size: 20px;
   color: red;
   font-weight: 700;
 }
 
 .submit {
-  margin-top: 50px;
+  margin-top: 20px;
   margin-bottom: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-#submit_btn {
+#submit_btn,
+#regist_btn {
   width: 90%;
   padding: 10px;
   border: solid 1px white;
@@ -154,13 +164,19 @@ select {
   color: black;
 }
 
+#regist_btn:hover {
+  background-color: #029da8;
+  color: black;
+}
+
 .toRegist {
   margin-top: 20px;
   margin-bottom: 20px;
   cursor: pointer;
 }
 
-.toRegistWord {
+.toRegistWord,
+.toLoginWord {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -168,13 +184,33 @@ select {
   color: #666666;
 }
 
+.toLoginWord:hover {
+  color: black;
+}
+
 .toRegistWord:hover {
   color: black;
 }
 
 .content__regist {
-  width: 99%;
+  width: 60%;
+  max-height: 100%;
+  /* margin: auto auto; */
   padding: 10px;
   box-sizing: border-box;
+  display: flex;
+}
+
+.content__regist--off {
   display: none;
+}
+
+.instruction {
+  width: 100%;
+  max-height: 100%;
+  background-color: brown;
+}
+
+.instruction div {
+  width: 80%;
 }

@@ -225,7 +225,7 @@ const updateUserStatus = function () {
 
 let lines2 = [];
 let userRole = null;
-const websocketProtocal = window.location.protocol === "https" ? "wss" : "ws";
+const websocketProtocal = window.location.protocol === "https:" ? "wss" : "ws";
 const ws = new WebSocket(
   `${websocketProtocal}://${window.location.host}/ws/note/${id}`,
 );
