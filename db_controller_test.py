@@ -3,7 +3,7 @@ from db_control.db_pool import get_db_connect
 def get_member_data(email):
     conn = get_db_connect()
     mycursor = conn.cursor()
-    sql = "select id, username, email, color from member where email = %s"
+    sql = "select * from member where email = %s"
     mycursor.execute(sql, (email,))
     result = [x for x in mycursor]
     mycursor.close()
@@ -11,7 +11,7 @@ def get_member_data(email):
     return result
 
 # ans = get_member_data("test1@test.com")
-# print(ans[0][3])
+# print(ans[0])
 
 def get_member_name(user_id):
     conn = get_db_connect()
@@ -49,8 +49,8 @@ def check_permission(note_id, user_id):
     conn.close()
     return result[0]
 
-ans3 = check_permission(12, 1)
-print(ans3)
+# ans3 = check_permission(12, 1)
+# print(ans3)
 
 def render_note_data(user_id):
     conn = get_db_connect()
@@ -122,3 +122,33 @@ def get_verifiy_thirty(note_id:str):
 
 # ans8 = get_verifiy_thirty(1)
 # print(ans8)
+
+def check_token_DB(email:str):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select current_token from member where email = %s"
+    param = (email,)
+    mycursor.execute(sql, param)
+    result = mycursor.fetchall()
+    mycursor.close()
+    conn.close()
+    return result[0]
+
+# ans9 = check_token_DB("test1@test.com")
+# print(ans9[0])
+
+def token_insert(token:str):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    try:
+        sql = "insert into member (current_token) values (%s)"
+        param = (token,)
+        mycursor.execute(sql, param)
+        conn.commit()
+        print("insert successfully")
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        mycursor.close()
+        conn.close()

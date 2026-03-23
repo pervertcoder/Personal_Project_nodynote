@@ -57,3 +57,5 @@ alter table note_permissions modify column role ENUM('owner', 'editor',
 'viewer')
 
 alter table member add column color varchar(15) default '#000000';
+
+ALTER TABLE member ADD COLUMN current_token TEXT;

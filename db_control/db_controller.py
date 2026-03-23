@@ -226,3 +226,49 @@ def color_updated(user_id:int, color:str):
     finally:
         mycursor.close()
         conn.close()
+
+# 比對token資料
+def check_token_DB(email:str):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select current_token from member where email = %s"
+    param = (email,)
+    mycursor.execute(sql, param)
+    result = mycursor.fetchall()
+    mycursor.close()
+    conn.close()
+    return result[0]
+
+# 新增token進資料表
+def token_insert(token:str, email:str):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    try:
+        sql = "update member set current_token = %s where email = %s"
+        param = (token, email)
+        mycursor.execute(sql, param)
+        conn.commit()
+        print("insert successfully")
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        mycursor.close()
+        conn.close()
+
+# 刪除token from DB
+def delete_token_DB(email:str):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    try:
+        sql = "update member set current_token = null where email = %s"
+        param = (email,)
+        mycursor.execute(sql, param)
+        conn.commit()
+        print("delete successfully")
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        mycursor.close()
+        conn.close()

@@ -14,83 +14,83 @@
     <title>Login/Regist</title>
   </head>
   <body>
-    <div class="content__login">
-      <div class="left">
-        <p class="title">Login</p>
-        <div class="blank"></div>
-        <div class="content__input">
-          <div class="mail">
-            <p class="mail-word">Email:</p>
-            <input type="email" id="email_login" />
+    <div class="content">
+      <div class="content__login">
+        <div class="left">
+          <p class="title">Login</p>
+          <div class="blank"></div>
+          <div class="content__input">
+            <div class="mail">
+              <p class="mail-word">Email:</p>
+              <input type="email" id="email_login" />
+            </div>
+            <div class="password">
+              <p class="password-word">Password:</p>
+              <input type="password" id="password_login" />
+            </div>
+            <div class="tester">
+              <label for="role">Choose a test account</label>
+              <select name="role" id="role">
+                <option value="choose">choose</option>
+                <option value="tester1">tester1</option>
+                <option value="tester2">tester2</option>
+                <option>ply</option>
+              </select>
+            </div>
+            <div class="error-login error--off">
+              <p class="error-message-login"></p>
+            </div>
+            <div class="submit">
+              <button type="button" id="submit_btn">Log In</button>
+            </div>
+            <div class="toRegist switch">
+              <p class="toRegistWord">Looking to create an account</p>
+            </div>
           </div>
-          <div class="password">
-            <p class="password-word">Password:</p>
-            <input type="password" id="password_login" />
-          </div>
-          <div class="tester">
-            <label for="role">Choose a test account</label>
-            <select name="role" id="role">
-              <option value="choose">choose</option>
-              <option value="tester1">tester1</option>
-              <option value="tester2">tester2</option>
-              <option>ply</option>
-            </select>
-          </div>
-          <div class="error-login error--off">
-            <p class="error-message-login"></p>
-          </div>
-          <div class="submit">
-            <button type="button" id="submit_btn">Log In</button>
-          </div>
-          <div class="toRegist switch">
-            <p class="toRegistWord">Looking to create an account</p>
-          </div>
+          <div class="blank"></div>
+          <div class="blank"></div>
         </div>
-        <div class="blank"></div>
-        <div class="blank"></div>
-      </div>
-      <div class="right">
-        <img src="/statics/images/Photo_creating.png" alt="photo" />
-      </div>
-    </div>
-    <div class="content__regist content__regist--off">
-      <div class="right">
-        <img src="/statics/images/Photo_creating.png" alt="photo" />
-      </div>
-      <div class="left">
-        <p class="title">Regist</p>
-        <div class="blank"></div>
-        <div class="content__input">
-          <div class="name">
-            <p class="name-word">Name:</p>
-            <input type="text" id="name_regist" />
-          </div>
-          <div class="mail">
-            <p class="mail-word">Email:</p>
-            <input type="text" id="email_regist" />
-          </div>
-          <div class="password">
-            <p class="password-word">Password:</p>
-            <input type="password" id="password_regist" />
-          </div>
-          <div class="error-regist error--off">
-            <p class="error-message-regist"></p>
-          </div>
-          <div class="submit">
-            <button type="button" id="regist_btn">Regist</button>
-          </div>
-          <div class="toRegist">
-            <p class="toLoginWord switch">Back to Login</p>
-          </div>
+        <div class="right">
+          <img src="/statics/images/Photo_creating.png" alt="photo" />
         </div>
-        <div class="blank"></div>
-        <div class="blank"></div>
+      </div>
+      <div class="content__regist content__regist--off">
+        <div class="right">
+          <img src="/statics/images/Photo_creating.png" alt="photo" />
+        </div>
+        <div class="left">
+          <p class="title">Regist</p>
+          <div class="blank"></div>
+          <div class="content__input">
+            <div class="name">
+              <p class="name-word">Name:</p>
+              <input type="text" id="name_regist" />
+            </div>
+            <div class="mail">
+              <p class="mail-word">Email:</p>
+              <input type="text" id="email_regist" />
+            </div>
+            <div class="password">
+              <p class="password-word">Password:</p>
+              <input type="password" id="password_regist" />
+            </div>
+            <div class="error-regist error--off">
+              <p class="error-message-regist"></p>
+            </div>
+            <div class="submit">
+              <button type="button" id="regist_btn">Regist</button>
+            </div>
+            <div class="toRegist">
+              <p class="toLoginWord switch">Back to Login</p>
+            </div>
+          </div>
+          <div class="blank"></div>
+          <div class="blank"></div>
+        </div>
       </div>
     </div>
     <div class="instruction">
-      <div>
-        <p>test</p>
-      </div>
+      <div class="instruction1"></div>
     </div>
   </body>
 </html>

@@ -4,7 +4,7 @@ from fastapi import Cookie, HTTPException
 from auth.auth_func import User
 import jwt
 from env_settings.env import ALGORITHM, SECRET_KEY
-from db_control.db_controller import put_note_name, check_permission, update_note, render_note_data, delete_note, check_role, check_shared_user, add_permission
+from db_control.db_controller import put_note_name, check_permission, update_note, render_note_data, delete_note, check_role, check_shared_user, add_permission, delete_token_DB
 from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response, note_render_data_response, note_delete, sharedNoteRequest, sharedNoteResponse
 
 router = APIRouter(prefix="/api/note", tags=["note"])
@@ -19,7 +19,7 @@ def note_add (request:note_data_request, access_token : str = Cookie(None)):
         user = User(user_email)
         check_data = user.get_user_data()
         user_id = check_data[0][0]
-        if check_data:
+        if check_data and access_token == check_data[0][5]:
             note_id = put_note_name(user_id, request.title, request.content)
             return note_addResponse(note_id=note_id)
         else:
@@ -28,11 +28,13 @@ def note_add (request:note_data_request, access_token : str = Cookie(None)):
                 "message" : "帳號或密碼發生錯誤"
             })
     except jwt.ExpiredSignatureError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 已過期，請重新登入'
 		})
     except jwt.InvalidTokenError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 無效，請重新登入'
@@ -50,7 +52,7 @@ def note_content_render (note_id, access_token : str = Cookie(None)):
         check_data = user.get_user_data()
         user_data = check_data[0]
         note_data = check_permission(note_id, user_data[0])
-        if note_data:
+        if note_data and access_token == check_data[0][5]:
             # if note_data[0][2] == "owner" or note_data[0][2] == "editor":
             return note_render_request(user_data=user_data, note=note_data)
         else:
@@ -59,11 +61,13 @@ def note_content_render (note_id, access_token : str = Cookie(None)):
                 "message" : "權限不足"
             })
     except jwt.ExpiredSignatureError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 已過期，請重新登入'
 		})
     except jwt.InvalidTokenError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 無效，請重新登入'
@@ -79,7 +83,7 @@ def note_update (note_id, request:note_update_request, access_token : str = Cook
         user = User(user_email)
         check_data = user.get_user_data()
         user_id = check_data[0][0]
-        if check_data:
+        if check_data and access_token == check_data[0][5]:
             rows = update_note(request.name, request.content, note_id, user_id)
             if rows == 0 :
                 return JSONResponse(status_code=403, content={
@@ -93,11 +97,13 @@ def note_update (note_id, request:note_update_request, access_token : str = Cook
                 "message" : "帳號或密碼發生錯誤"
             })
     except jwt.ExpiredSignatureError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 已過期，請重新登入'
 		})
     except jwt.InvalidTokenError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 無效，請重新登入'
@@ -115,7 +121,7 @@ def note_data_render (role : str, access_token : str = Cookie(None)):
         user_id = check_data[0][0]
         # role = "owner"
         notes = render_note_data(user_id, role)
-        if check_data and notes:
+        if check_data and access_token == check_data[0][5] and notes:
             return note_render_data_response(data=notes)
         return JSONResponse(status_code=403, content={
 			'error': True,
@@ -123,11 +129,13 @@ def note_data_render (role : str, access_token : str = Cookie(None)):
 		})
         
     except jwt.ExpiredSignatureError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 已過期，請重新登入'
 		})
     except jwt.InvalidTokenError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 無效，請重新登入'
@@ -145,7 +153,7 @@ def note_data_render (note_id, access_token : str = Cookie(None)):
         check_data = user.get_user_data()
         user_id = check_data[0][0]
         permission = check_permission(note_id, user_id)
-        if check_data and permission[0][2] == "owner":
+        if check_data and access_token == check_data[0][5] and permission[0][2] == "owner":
             deleted_note_id = delete_note(note_id)
             return note_delete(ok=True, note_id=deleted_note_id)
         return JSONResponse(status_code=403, content={
@@ -154,11 +162,13 @@ def note_data_render (note_id, access_token : str = Cookie(None)):
 		})
         
     except jwt.ExpiredSignatureError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 已過期，請重新登入'
 		})
     except jwt.InvalidTokenError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 無效，請重新登入'
@@ -193,11 +203,13 @@ def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(
 		})
         
     except jwt.ExpiredSignatureError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 已過期，請重新登入'
 		})
     except jwt.InvalidTokenError:
+        delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 無效，請重新登入'
