@@ -4,7 +4,7 @@ from fastapi import Cookie, HTTPException
 from auth.auth_func import User
 import jwt
 from env_settings.env import ALGORITHM, SECRET_KEY
-from db_control.db_controller import put_note_name, check_permission, update_note, render_note_data, delete_note, check_role, check_shared_user, add_permission, delete_token_DB
+from db_control.db_controller import put_note_name, check_permission, update_note, render_note_data, delete_note, check_role, check_shared_user, add_permission, delete_token_DB, check_if_editor_owner, delete_permissions, share_only_notes
 from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response, note_render_data_response, note_delete, sharedNoteRequest, sharedNoteResponse
 
 router = APIRouter(prefix="/api/note", tags=["note"])
@@ -125,7 +125,7 @@ def note_data_render (role : str, access_token : str = Cookie(None)):
             return note_render_data_response(data=notes)
         return JSONResponse(status_code=403, content={
 			'error': True,
-			'message': '權限不足'
+			'message': '權限不足或沒有資料'
 		})
         
     except jwt.ExpiredSignatureError:
@@ -141,6 +141,36 @@ def note_data_render (role : str, access_token : str = Cookie(None)):
 			'message': 'Token 無效，請重新登入'
         })
 
+@router.get("/share_note_render/{user_id}", response_model=note_render_data_response)
+def note_data_render (user_id : int, access_token : str = Cookie(None)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="未登入")
+    try:
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_email = payload["email"]
+        user = User(user_email)
+        check_data = user.get_user_data()
+        user_id = check_data[0][0]
+        notes = share_only_notes(user_id)
+        if check_data and access_token == check_data[0][5] and notes:
+            return note_render_data_response(data=notes)
+        return JSONResponse(status_code=403, content={
+			'error': True,
+			'message': '權限不足'
+		})
+        
+    except jwt.ExpiredSignatureError:
+        delete_token_DB(user_email)
+        return JSONResponse(status_code=401, content={
+			'error': True,
+			'message': 'Token 已過期，請重新登入'
+		})
+    except jwt.InvalidTokenError:
+        delete_token_DB(user_email)
+        return JSONResponse(status_code=401, content={
+			'error': True,
+			'message': 'Token 無效，請重新登入'
+        })
 
 @router.delete("/note_delete/{note_id}", response_model=note_delete)
 def note_data_render (note_id, access_token : str = Cookie(None)):
@@ -189,6 +219,9 @@ def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(
 
         share_user_id = check_shared_user(request.email)
         if role == "owner" and share_user_id:
+            owner_or_editor_data = check_if_editor_owner(note_id, share_user_id)
+            if owner_or_editor_data and owner_or_editor_data["permission_role"] in ["viewer", "editor"]:
+                delete_permissions(owner_or_editor_data["permission_id"])
             result = add_permission(note_id, share_user_id, shared_role)
             if result:
                 return sharedNoteResponse(ok=True)

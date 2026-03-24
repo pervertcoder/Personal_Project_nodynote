@@ -104,8 +104,7 @@ body {
 }
 
 .allNotes__outlayer,
-.sharedNotes__outlayer,
-.onlyReadNotes__outlayer {
+.sharedNotes__outlayer {
   width: 100%;
   margin: 10px 0;
   padding: 10px;
@@ -114,6 +113,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: start;
+}
+
+.onlyReadNotes__outlayer {
+  display: none;
 }
 
 .mainFun span {
@@ -147,11 +150,20 @@ body {
   color: white;
 }
 
-.locker_text {
+.locker_text,
+.pen_text {
   display: flex;
   align-items: center;
   justify-content: center;
   color: red;
+  font-weight: 700;
+}
+
+.pen_text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(124, 124, 231);
   font-weight: 700;
 }
 
@@ -199,7 +211,8 @@ body {
   align-items: center;
 }
 
-.title {
+.title,
+.title-name {
   width: 87%;
   margin-top: 10px;
   padding: 30px 0;
@@ -214,14 +227,20 @@ body {
 .content {
   width: 87%;
   min-width: 0;
+  margin-top: 20px;
   display: flex;
-  justify-content: center;
+  justify-content: start;
+}
+
+.nodata {
+  font-size: 20px;
+  font-weight: 700;
+  color: #8c9697;
 }
 
 .note {
-  width: 100%;
+  width: 87%;
   min-width: 0;
-  /* height: 90%; */
   background-color: #f5f5f5;
   margin: 40px 0;
   border-radius: 10px;
@@ -229,6 +248,17 @@ body {
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   grid-auto-rows: 200px;
   gap: 25px;
+}
+
+.title-name {
+  font-weight: bold;
+  margin: 16px 0 8px;
+}
+
+.section_title-outside {
+  margin-top: 20px;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .data__state--off {
@@ -261,6 +291,7 @@ body {
 .btnBox {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 
 .noteBtn {

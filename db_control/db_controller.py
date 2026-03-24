@@ -150,6 +150,18 @@ def render_note_data(user_id:int, role:str):
     conn.close()
     return notes
 
+# 分享的筆記列表資料
+def share_only_notes(user_id:int):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select n.id, n.title, p.role from notes n join note_permissions p on n.id = p.note_id where p.user_id = %s and p.role != 'owner' order by n.id ASC"
+    param = (user_id,)
+    mycursor.execute(sql, param)
+    notes = mycursor.fetchall()
+    mycursor.close()
+    conn.close()
+    return notes
+
 # 刪除筆記資料
 def delete_note(note_id:str):
     conn = get_db_connect()
@@ -203,6 +215,38 @@ def add_permission(note_id:str, user_id:int, role:str):
         conn.commit()
         print("permission updated")
         return mycursor.rowcount
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        mycursor.close()
+        conn.close()
+
+# 檢查權限
+def check_if_editor_owner(note_id:int, user_id:int):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select * from note_permissions where note_id = %s and user_id = %s"
+    param = (note_id, user_id)
+    mycursor.execute(sql, param)
+    result = [x for x in mycursor]
+    if not result:
+        return None
+    ans = {"permission_id" : result[0][0], "permission_role" : result[0][3]}
+    mycursor.close()
+    conn.close()
+    return ans
+
+# 刪除權限
+def delete_permissions(permission_id:int):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    try:
+        sql = "delete from note_permissions where id = %s"
+        param = (permission_id,)
+        mycursor.execute(sql, param)
+        conn.commit()
+        print("delete successfully")
     except Exception as e:
         conn.rollback()
         raise e
