@@ -16,11 +16,11 @@ app.mount("/statics", StaticFiles(directory="statics"))
 # Static Pages
 @app.get("/", include_in_schema=False)
 async def index(request: Request):
-    return FileResponse("./statics/onboarding_index.html", media_type="text/html")
+    return FileResponse("./statics/landing_page.html", media_type="text/html")
 
-@app.get("/dashboard", include_in_schema=False)
+@app.get("/login&regist", include_in_schema=False)
 async def dashboard_page(request: Request):
-    return FileResponse("./statics/index.html")
+    return FileResponse("./statics/onboarding_index.html")
 
 @app.get("/note/{note_id}", include_in_schema=False)
 async def note_page(request: Request):
@@ -29,10 +29,6 @@ async def note_page(request: Request):
 @app.get("/overview", include_in_schema=False)
 async def overview_page(request:Request):
     return FileResponse("./statics/overview_page.html")
-
-@app.get("/onboarding", include_in_schema=False)
-async def overview_page(request:Request):
-    return FileResponse("./statics/onboarding_index.html")
 
 @app.get("/regist", include_in_schema=False)
 async def regist(request:Request):

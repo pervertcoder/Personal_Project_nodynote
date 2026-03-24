@@ -389,8 +389,11 @@ const renderNotes = function ({ owner = [], editor = [], viewer = [] }) {
   if (editor.length > 0) {
     const sectionTitle = document.createElement("div");
     sectionTitle.classList.add("section_title-outside");
-    sectionTitle.textContent = "Editable";
+    const sectionTitleText = document.createElement("p");
+    sectionTitleText.classList.add("section_title");
+    sectionTitleText.textContent = "Editable Notes";
     mainContent.appendChild(sectionTitle);
+    sectionTitle.appendChild(sectionTitleText);
 
     const noteBar = document.createElement("div");
     noteBar.classList.add("note");
@@ -404,8 +407,11 @@ const renderNotes = function ({ owner = [], editor = [], viewer = [] }) {
   if (viewer.length > 0) {
     const sectionTitle = document.createElement("div");
     sectionTitle.classList.add("section_title-outside");
-    sectionTitle.textContent = "Read Only";
+    const sectionTitleText = document.createElement("p");
+    sectionTitleText.classList.add("section_title");
+    sectionTitleText.textContent = "ReadOnly Notes";
     mainContent.appendChild(sectionTitle);
+    sectionTitle.appendChild(sectionTitleText);
 
     const noteBar = document.createElement("div");
     noteBar.classList.add("note");
@@ -484,9 +490,23 @@ const createNote = function (data, role) {
     btnBox.appendChild(shareBtn);
     btnBox.appendChild(deleteBtn);
   } else if (role === "editor") {
-    btnBox.innerHTML = `<span class="material-symbols-outlined">edit_note</span><span>editable</span>`;
+    const edit_note = document.createElement("span");
+    edit_note.classList.add("material-symbols-outlined");
+    edit_note.textContent = "edit_note";
+    const editable = document.createElement("span");
+    editable.classList.add("pen_text");
+    editable.textContent = "Editable";
+    btnBox.appendChild(edit_note);
+    btnBox.appendChild(editable);
   } else {
-    btnBox.innerHTML = `<span class="material-symbols-outlined">lock</span><span >Read Only</span>`;
+    const lock = document.createElement("span");
+    lock.classList.add("material-symbols-outlined");
+    lock.textContent = "lock";
+    const readOnly = document.createElement("span");
+    readOnly.classList.add("locker_text");
+    readOnly.textContent = "ReadOnly";
+    btnBox.appendChild(lock);
+    btnBox.appendChild(readOnly);
   }
 
   div.appendChild(title);
@@ -591,10 +611,12 @@ const getNoteShareAll = async function (user_id) {
 // 功能按鈕
 const mynote = document.getElementById("mynote");
 mynote.addEventListener("click", async () => {
+  const title = document.querySelector(".titleName");
   const data = await getNoteDataSelf();
   if (data.length > 0) {
     renderNotes({ owner: data });
   } else {
+    title.textContent = "My Notes";
     console.log("no data");
   }
 });
@@ -606,13 +628,15 @@ sharednote.addEventListener("click", async () => {
 
   const { editor, viewer } = await getNoteShareAll(user_id);
 
-  // if (editor[0] !== 0) {
-  //   renderNotes({ editor });
-  // }
-  // if (viewer[0] !== 0) {
-  //   renderNotes({ viewer });
-  // }
-  renderNotes({ editor, viewer });
+  if (editor[0] !== 0) {
+    renderNotes({ editor });
+  }
+  if (viewer[0] !== 0) {
+    renderNotes({ viewer });
+  }
+  if (editor[0] !== 0 && viewer[0] !== 0) {
+    renderNotes({ editor, viewer });
+  }
 
   if (editor[0] === 0 && viewer[0] === 0) {
     title.textContent = "Shared Notes";
@@ -639,7 +663,7 @@ onlyReadNote.addEventListener("click", async () => {
 const logout = document.getElementById("logout");
 logout.addEventListener("click", async (e) => {
   e.stopPropagation();
-  window.location.href = "/";
+  window.location.href = "/login&regist";
   const url = "/api/auth/logout";
   const request = await fetch(url, {
     method: "POST",
