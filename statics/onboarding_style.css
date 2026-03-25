@@ -6,6 +6,19 @@ body {
   justify-content: center;
 }
 
+.narbar {
+  width: 80%;
+  background-color: #f6c49f;
+  padding: 20px;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+}
+
+#back {
+  cursor: pointer;
+}
+
 .content {
   background-color: #f6c49f;
   display: flex;

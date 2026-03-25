@@ -139,6 +139,11 @@ const changeColorByClass = function () {
   }
 };
 
+const back = document.getElementById("back");
+back.addEventListener("click", () => {
+  window.location.href = "/";
+});
+
 // switchBtn.addEventListener("click", () => {
 //   registContent.classList.toggle("content__regist--off");
 //   changeColorByClass();
