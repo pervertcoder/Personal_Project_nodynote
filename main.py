@@ -12,7 +12,7 @@ app.include_router(note_router)
 app.include_router(websocket_router)
 
 
-app.mount("/statics", StaticFiles(directory="statics"))
+# app.mount("/statics", StaticFiles(directory="statics"))
 # Static Pages
 @app.get("/", include_in_schema=False)
 async def index(request: Request):
