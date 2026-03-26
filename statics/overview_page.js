@@ -367,14 +367,15 @@ const renderDomOnly = function (data) {
   }
 };
 
-const renderNotes = function ({ owner = [], editor = [], viewer = [] }) {
+const renderNotes = function ({ owner = [], editor = [], viewer = [] }, title) {
   const mainContent = document.querySelector(".mainContent");
 
   mainContent.innerHTML = "";
 
   const titleDiv = document.createElement("div");
   titleDiv.classList.add("title-name");
-  titleDiv.textContent = owner.length > 0 ? "My Notes" : "Shared Notes";
+  titleDiv.textContent = title;
+  // titleDiv.textContent = owner.length > 0 ? "My Notes" : "Shared Notes";
   mainContent.appendChild(titleDiv);
 
   if (owner.length > 0) {
@@ -420,6 +421,22 @@ const renderNotes = function ({ owner = [], editor = [], viewer = [] }) {
     });
     mainContent.appendChild(noteBar);
   }
+};
+
+const showNoData = function (title) {
+  const mainContent = document.querySelector(".mainContent");
+  mainContent.innerHTML = "";
+
+  const titleDiv = document.createElement("div");
+  titleDiv.classList.add("title-name");
+  titleDiv.textContent = title;
+  mainContent.appendChild(titleDiv);
+
+  const nodata = document.createElement("div");
+  nodata.classList.add("nodata");
+  nodata.innerText = "查無資料";
+  mainContent.appendChild(nodata);
+  return nodata;
 };
 
 const createSection = function (titleText) {
@@ -549,8 +566,9 @@ const firstRender = async function () {
   const response = await request.json();
   console.log(response);
   if (response.data) {
-    renderNotes({ owner: response.data });
+    renderNotes({ owner: response.data }, "My Notes");
   } else {
+    showNoData("My Notes");
     console.log("no data");
     return null;
   }
@@ -611,38 +629,35 @@ const getNoteShareAll = async function (user_id) {
 // 功能按鈕
 const mynote = document.getElementById("mynote");
 mynote.addEventListener("click", async () => {
-  const title = document.querySelector(".titleName");
   const data = await getNoteDataSelf();
   if (data.length > 0) {
-    renderNotes({ owner: data });
+    renderNotes({ owner: data }, "My Notes");
   } else {
-    title.textContent = "My Notes";
+    showNoData("My Notes");
     console.log("no data");
   }
 });
 
 const sharednote = document.getElementById("sharednote");
 sharednote.addEventListener("click", async () => {
-  const title = document.querySelector(".titleName");
   const user_id = sharednote.dataset.userId;
 
   const { editor, viewer } = await getNoteShareAll(user_id);
 
   if (editor[0] !== 0) {
-    renderNotes({ editor });
+    renderNotes({ editor }, "Shared Notes");
   }
   if (viewer[0] !== 0) {
-    renderNotes({ viewer });
+    renderNotes({ viewer }, "Shared Notes");
   }
   if (editor[0] !== 0 && viewer[0] !== 0) {
-    renderNotes({ editor, viewer });
+    renderNotes({ editor, viewer }, "Shared Notes");
   }
 
   if (editor[0] === 0 && viewer[0] === 0) {
-    title.textContent = "Shared Notes";
+    showNoData("Shared Notes");
     console.log("no data");
   }
-  // renderNotes({ editor, viewer });
 });
 
 const onlyReadNote = document.getElementById("onlyRnote");
