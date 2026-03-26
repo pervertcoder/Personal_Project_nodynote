@@ -241,11 +241,26 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                         if line_text != "":
                             cleaned_lines.append(line_text)
                 
-                for offset, line_text in enumerate(lines):
+                for offset, line_text in enumerate(cleaned_lines):
                     insert_index = start_index + offset
+
+                    # if offset == 0:
+                    #     note["content"][insert_index]["text"] = line_text
+                    #     note["content"][insert_index]["version"] += 1
+
+                    #     for conn in note["connection"]:
+                    #         if conn != websocket:
+                    #             await conn.send_json({
+                    #                 "type" : "update_line_paste",
+                    #                 "content" : {
+                    #                     "lineIndex" : insert_index,
+                    #                     "text" : line_text,
+                    #                     "version" : note["content"][insert_index]["version"]
+                    #                 }
+                    #             })
+                    # else:
                     note["content"].insert(insert_index, {"text" : line_text, "version" : 0})
-                    # print(note["content"])
-                
+                            
                     for conn in note["connection"]:
                         if conn != websocket:
                             await conn.send_json({
@@ -253,14 +268,14 @@ async def websocket_endpoint(websocket : WebSocket, note_id : str, user_permissi
                                 "content": {
                                     "lineIndex": insert_index,
                                     "text": line_text,
-                                    "version": note["content"][insert_index]["version"]
+                                    "version": 0
                                 }
                             })
                 await websocket.send_json({
                     "type" : "ack_paste",
                     "content" : {
                         "startIndex" : start_index,
-                        "lines" : lines
+                        "lines" : cleaned_lines
                     }
                 })
                 

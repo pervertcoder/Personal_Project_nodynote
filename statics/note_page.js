@@ -426,6 +426,12 @@ ws.onmessage = (event) => {
       // block.innerText = `${lineIndex + 1}. ${newText}`;
     }
     block.dataset.version = version;
+  } else if (data.type === "update_line_paste") {
+    const { lineIndex, text } = data.content;
+    const block = document.querySelector(`[data-index="${lineIndex}"]`);
+    if (block) {
+      block.innerText = text;
+    }
   } else if (data.type === "insert_line") {
     const { lineIndex, text, version } = data.content;
     const role = data.role;
@@ -873,7 +879,7 @@ editor.addEventListener("paste", (e) => {
   const firstLine = allLines.shift();
   const before = currentBlock.innerText.slice(0, cursorPos);
   const after = currentBlock.innerText.slice(cursorPos);
-  currentBlock.innerText = before + firstLine;
+  currentBlock.innerText = before + firstLine + after;
 
   let newBlocks = [];
   allLines.forEach((lineText) => {
@@ -895,7 +901,7 @@ editor.addEventListener("paste", (e) => {
   refreshLineNumber();
 
   // 發送一次 websocket 批次更新
-  const wsLines = [before + firstLine, ...allLines];
+  const wsLines = [before + firstLine + after, ...allLines];
   // console.log(wsLines);
   ws.send(
     JSON.stringify({
@@ -908,7 +914,7 @@ editor.addEventListener("paste", (e) => {
   );
 
   for (let i = 0; i < wsLines.length; i++) {
-    selfInsertIndex.add(index + 1);
+    selfInsertIndex.add(index + i);
   }
   // 調整光標到最後貼上的位置
   const range = document.createRange();
@@ -923,7 +929,7 @@ editor.addEventListener("paste", (e) => {
   sendCursor();
   highlightCurrentLine();
 
-  window.location.reload();
+  // window.location.reload();
 });
 
 const share = document.querySelector(".share_icon_outlayer");
