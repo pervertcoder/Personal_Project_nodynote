@@ -65,6 +65,14 @@ body {
   display: block;
 }
 
+.memberNum {
+  margin-top: 5px;
+  color: white;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+}
+
 .popupSon {
   width: 100%;
   display: flex;

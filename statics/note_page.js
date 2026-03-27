@@ -35,13 +35,10 @@ const checkState = async function () {
     const role = response.note[0][2];
 
     if (role === "owner") {
-      // userRole = "can_write";
       icon.classList.remove("symbol__state--off");
       icon.classList.add("symbol__state--on");
     } else if (role === "editor") {
-      // userRole = "can_write";
     } else if (role === "viewer") {
-      // userRole = "viewer";
       restrict.classList.remove("restrict--off");
     }
     return role;
@@ -249,6 +246,10 @@ ws.onmessage = (event) => {
     refreshLineNumber();
 
     // 顯示在線人數
+    const memberNum = document.createElement("p");
+    memberNum.classList.add("memberNum");
+    memberNum.textContent = `線上共有${activeUsers.length}位使用者`;
+    popupOnline.appendChild(memberNum);
     for (let i = 0; i < activeUsers.length; i++) {
       const memberBall = document.createElement("div");
       memberBall.className = "user-ball2";
