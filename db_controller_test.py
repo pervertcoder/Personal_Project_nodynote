@@ -190,7 +190,7 @@ def delete_permissions(permission_id:int):
 def share_only_notes(user_id:int):
     conn = get_db_connect()
     mycursor = conn.cursor()
-    sql = "select n.id, n.title, p.role from notes n join note_permissions p on n.id = p.note_id where p.user_id = %s and p.role != 'owner' order by n.id ASC"
+    sql = "select n.id, n.title, p.role, m.username as owner_name from notes n join note_permissions p on n.id = p.note_id join note_permissions p2 on n.id = p2.note_id and p2.role = 'owner' join member m on m.id = p2.user_id where p.user_id = %s and p.role != 'owner' order by n.id ASC"
     param = (user_id,)
     mycursor.execute(sql, param)
     notes = mycursor.fetchall()
@@ -200,3 +200,17 @@ def share_only_notes(user_id:int):
 
 ans11 = share_only_notes(1);
 print(ans11)
+
+def get_owner_name (note_id:int):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select m.username from member m join note_permissions p on m.id = p.user_id where p.role = 'owner' and p.note_id = %s"
+    param = (note_id,)
+    mycursor.execute(sql, param)
+    notes = mycursor.fetchall()
+    mycursor.close()
+    conn.close()
+    return notes
+
+# ans12 = get_owner_name(34)
+# print(ans12[0][0])

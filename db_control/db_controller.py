@@ -154,7 +154,7 @@ def render_note_data(user_id:int, role:str):
 def share_only_notes(user_id:int):
     conn = get_db_connect()
     mycursor = conn.cursor()
-    sql = "select n.id, n.title, p.role from notes n join note_permissions p on n.id = p.note_id where p.user_id = %s and p.role != 'owner' order by n.id ASC"
+    sql = "select n.id, n.title, p.role, m.username as owner_name from notes n join note_permissions p on n.id = p.note_id join note_permissions p2 on n.id = p2.note_id and p2.role = 'owner' join member m on m.id = p2.user_id where p.user_id = %s and p.role != 'owner' order by n.id ASC"
     param = (user_id,)
     mycursor.execute(sql, param)
     notes = mycursor.fetchall()

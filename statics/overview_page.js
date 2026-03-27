@@ -513,15 +513,34 @@ const createNote = function (data, role) {
     const editable = document.createElement("span");
     editable.classList.add("pen_text");
     editable.textContent = "Editable";
+
+    const owner = data[3];
+
+    const showOwner = document.createElement("div");
+    showOwner.classList.add("showOwner");
+    const showOwnerContent = document.createElement("p");
+    showOwnerContent.classList.add("showOwnerContent");
+    showOwnerContent.textContent = `Owner: ${owner}`;
+    blankSon.appendChild(showOwner);
+    showOwner.appendChild(showOwnerContent);
+
     btnBox.appendChild(edit_note);
     btnBox.appendChild(editable);
   } else {
+    const owner = data[3];
     const lock = document.createElement("span");
     lock.classList.add("material-symbols-outlined");
     lock.textContent = "lock";
     const readOnly = document.createElement("span");
     readOnly.classList.add("locker_text");
     readOnly.textContent = "ReadOnly";
+    const showOwner = document.createElement("div");
+    showOwner.classList.add("showOwner");
+    const showOwnerContent = document.createElement("p");
+    showOwnerContent.classList.add("showOwnerContent");
+    showOwnerContent.textContent = `Owner: ${owner}`;
+    blankSon.appendChild(showOwner);
+    showOwner.appendChild(showOwnerContent);
     btnBox.appendChild(lock);
     btnBox.appendChild(readOnly);
   }
@@ -616,7 +635,7 @@ const getNoteShareAll = async function (user_id) {
         viewerNoteArr.push(response.data[i]);
       }
     }
-    console.log(editorNoteArr, viewerNoteArr);
+    // console.log(editorNoteArr, viewerNoteArr);
     return { editor: editorNoteArr, viewer: viewerNoteArr };
   } else {
     console.log("no data");
