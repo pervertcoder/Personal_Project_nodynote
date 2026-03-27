@@ -707,4 +707,17 @@ logout.addEventListener("click", async (e) => {
   const response = await request.json();
 });
 
-// 待優化：共享的筆記要顯示共享狀態
+const fetchNotification = async function () {
+  const url = "/api/note/get_notification";
+  const request = await fetch(url, {
+    method: "GET",
+    credentials: "include",
+  });
+
+  const response = await request.json();
+  console.log(response);
+};
+
+setInterval(() => {
+  fetchNotification();
+}, 10000);

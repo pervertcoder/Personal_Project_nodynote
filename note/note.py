@@ -4,8 +4,8 @@ from fastapi import Cookie, HTTPException
 from auth.auth_func import User
 import jwt
 from env_settings.env import ALGORITHM, SECRET_KEY
-from db_control.db_controller import put_note_name, check_permission, update_note, render_note_data, delete_note, check_role, check_shared_user, add_permission, delete_token_DB, check_if_editor_owner, delete_permissions, share_only_notes
-from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response, note_render_data_response, note_delete, sharedNoteRequest, sharedNoteResponse
+from db_control.db_controller import put_note_name, check_permission, update_note, render_note_data, delete_note, check_role, check_shared_user, add_permission, delete_token_DB, check_if_editor_owner, delete_permissions, share_only_notes, insert_notification, get_notification_DB
+from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response, note_render_data_response, note_delete, sharedNoteRequest, sharedNoteResponse, notificationResponse, notification
 
 router = APIRouter(prefix="/api/note", tags=["note"])
 
@@ -224,6 +224,9 @@ def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(
                 delete_permissions(owner_or_editor_data["permission_id"])
             result = add_permission(note_id, share_user_id, shared_role)
             if result:
+                # 新增通知
+                message = f"使用者{user_id}分享一個筆記給你"
+                insert_notification(share_user_id, note_id, message)
                 return sharedNoteResponse(ok=True)
             else:
                 return JSONResponse(status_code=409, content={
@@ -243,6 +246,53 @@ def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(
 		})
     except jwt.InvalidTokenError:
         delete_token_DB(user_email)
+        return JSONResponse(status_code=401, content={
+			'error': True,
+			'message': 'Token 無效，請重新登入'
+        })
+    
+@router.get("/get_notification", response_model=notificationResponse)
+def get_notification(access_token:str = Cookie(None)):
+    if not access_token:
+        raise HTTPException(status_code=401, detail="未登入")
+    try:
+        payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_email = payload["email"]
+        user = User(user_email)
+        check_data = user.get_user_data()
+        user_id = check_data[0][0]
+        if check_data:
+            notifications = get_notification_DB(user_id)
+            if notifications :
+                # created_at = notification[0][4]
+                result = []
+                for n in notifications:
+                    result.append(notification(
+                        id = n[0],
+                        note_id = n[2],
+                        message = n[3],
+                        created_at = n[4].isoformat()
+                    ))
+                    pass
+                return notificationResponse(data=result)
+            else:
+                return {
+                    'data' : []
+                }
+        else:
+            return JSONResponse(status_code=403, content={
+                'error': True,
+                'message': '權限不足'
+            })
+        
+    except jwt.ExpiredSignatureError:
+        # delete_token_DB(user_email)
+        return JSONResponse(status_code=401, content={
+			'error': True,
+			'message': 'Token 已過期，請重新登入'
+		})
+    except jwt.InvalidTokenError:
+        # delete_token_DB(user_email)
         return JSONResponse(status_code=401, content={
 			'error': True,
 			'message': 'Token 無效，請重新登入'

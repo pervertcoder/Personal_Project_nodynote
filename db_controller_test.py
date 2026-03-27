@@ -198,8 +198,8 @@ def share_only_notes(user_id:int):
     conn.close()
     return notes
 
-ans11 = share_only_notes(1);
-print(ans11)
+# ans11 = share_only_notes(1);
+# print(ans11)
 
 def get_owner_name (note_id:int):
     conn = get_db_connect()
@@ -214,3 +214,17 @@ def get_owner_name (note_id:int):
 
 # ans12 = get_owner_name(34)
 # print(ans12[0][0])
+
+# 拿取通知資料
+def get_notification(user_id:int):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select * from notifications where user_id = %s order by created_at DESC limit 5"
+    param = (user_id,)
+    mycursor.execute(sql, param)
+    data = mycursor.fetchall()
+    mycursor.close()
+    conn.close()
+    return data
+ans13 = get_notification(2)
+print(ans13)

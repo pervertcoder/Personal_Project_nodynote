@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional, List
 
 class registRequest(BaseModel):
     user_name : str
@@ -74,3 +75,12 @@ class colorUpdateResponse(BaseModel):
 class colorUpdateResquest(BaseModel):
     user_email : str
     color : str
+
+class notification(BaseModel):
+    id : int
+    note_id : int
+    message : str
+    created_at: str
+
+class notificationResponse(BaseModel):
+    data : Optional[List[notification]] = None

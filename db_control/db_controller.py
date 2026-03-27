@@ -316,3 +316,32 @@ def delete_token_DB(email:str):
     finally:
         mycursor.close()
         conn.close()
+
+# 寫入通知資料庫
+def insert_notification(user_id:int, note_id:int, message:str):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    try:
+        sql = "insert into notifications (user_id, note_id, message) values(%s, %s, %s)"
+        param = (user_id, note_id, message)
+        mycursor.execute(sql, param)
+        conn.commit()
+        print("update successfully")
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        mycursor.close()
+        conn.close()
+
+# 拿取通知資料
+def get_notification_DB(user_id:int):
+    conn = get_db_connect()
+    mycursor = conn.cursor()
+    sql = "select * from notifications where user_id = %s order by created_at DESC limit 5"
+    param = (user_id,)
+    mycursor.execute(sql, param)
+    data = mycursor.fetchall()
+    mycursor.close()
+    conn.close()
+    return data
