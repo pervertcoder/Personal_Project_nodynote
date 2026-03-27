@@ -859,10 +859,20 @@ editor.addEventListener("paste", (e) => {
   const block = e.target.closest(".block");
   if (!block) return;
 
+  if (block.innerText.trim() !== "") {
+    alert("目前行已有文字，無法貼上！");
+    return;
+  }
+
   const pasteText = e.clipboardData.getData("text");
   const index = parseInt(block.dataset.index);
   const selection = window.getSelection();
   const cursorPos = selection.getRangeAt(0).startOffset;
+
+  // if (pasteText.length < MAX_CHARS_PER_LINE) {
+  //   alert("MAX_CHARS_PER_LINE");
+  //   return;
+  // }
 
   // 將貼上的文字拆成多行
   let allLines = [];
@@ -929,7 +939,7 @@ editor.addEventListener("paste", (e) => {
   sendCursor();
   highlightCurrentLine();
 
-  // window.location.reload();
+  window.location.reload();
 });
 
 const share = document.querySelector(".share_icon_outlayer");
