@@ -78,4 +78,4 @@ create table notifications(
 
 )
 
-create index idx_user_id on notification(user_id)
+create index idx_user_id on notifications(user_id)

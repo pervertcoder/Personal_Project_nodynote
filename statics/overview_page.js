@@ -707,6 +707,14 @@ logout.addEventListener("click", async (e) => {
   const response = await request.json();
 });
 
+const getLastReadTime = function () {
+  return localStorage.getItem("lastReadTime");
+};
+
+const markAsRead = function () {
+  localStorage.setItem("lastReadTime", new Date().toISOString());
+};
+
 const fetchNotification = async function () {
   const url = "/api/note/get_notification";
   const request = await fetch(url, {
@@ -715,9 +723,71 @@ const fetchNotification = async function () {
   });
 
   const response = await request.json();
-  console.log(response);
+  // console.log(response);
+  return response.data || [];
 };
 
+const formateTime = function (timeStr) {
+  const now = new Date();
+  const time = new Date(timeStr);
+  const diff = Math.floor((now - time) / 1000);
+
+  if (diff < 60) return "剛剛";
+  if (diff < 3600) return Math.floor(diff / 60) + " 分鐘前";
+  if (diff < 86400) return Math.floor(diff / 3600) + " 小時前";
+
+  return time.toLocaleDateString();
+};
+
+const renderNotification = function (data) {
+  const container = document.getElementById("noti-list");
+  const count = document.getElementById("noti-count");
+
+  container.innerHTML = "";
+
+  const unreadCount = data.filter((n) => {
+    const lastRead = getLastReadTime();
+    return !lastRead || new Date(n.created_at) > new Date(lastRead);
+  }).length;
+  if (unreadCount > 0) {
+    count.classList.remove("hidden"); // 顯示紅點
+    count.textContent = unreadCount; // 顯示數字
+  } else {
+    count.textContent = "";
+    count.classList.add("hidden"); // 隱藏紅點
+  }
+
+  data.forEach((n, index) => {
+    const item = document.createElement("div");
+    item.classList.add("notification-item");
+
+    if (index < 2) {
+      item.classList.add("new");
+    }
+
+    item.innerHTML = `
+      <div class="message">${n.message}</div>
+      <div class="time">${formateTime(n.created_at)}</div>
+    `;
+
+    item.addEventListener("click", () => {
+      markAsRead();
+      initNotifications();
+      window.location.href = `/note/${n.note_id}`;
+    });
+
+    container.appendChild(item);
+  });
+};
+
+const initNotifications = async function () {
+  const data = await fetchNotification();
+
+  renderNotification(data);
+};
+
+initNotifications();
+
 setInterval(() => {
-  fetchNotification();
-}, 10000);
+  initNotifications();
+}, 5000);

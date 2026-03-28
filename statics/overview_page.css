@@ -15,14 +15,20 @@ body {
   position: relative;
 }
 
-.blank,
-.blank2 {
+.blank {
   width: 95%;
-  height: 50px;
+  height: 25px;
 }
 
 .blank2 {
+  width: 95%;
+  height: 50px;
   border-bottom: 1px solid rgb(207, 205, 205);
+}
+
+.blank3 {
+  width: 95%;
+  height: 50px;
 }
 
 .profile {
@@ -150,6 +156,66 @@ body {
   color: white;
 }
 
+.notification-section {
+  margin-top: 50px;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.notif-count {
+  background-color: #ff4d4f;
+  color: white;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.notif-count.hidden {
+  display: none;
+}
+
+.notification-list {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background-color: white;
+  cursor: pointer;
+  transition: 0.2s;
+  border: solid 1px #f0f0f0;
+}
+
+.notification-item:hover {
+  background-color: #f0f7ff;
+}
+
+.notification-item.new {
+  background-color: #eef6ff;
+  border: solid 1px #d0e7ff;
+}
+
+.message {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.time {
+  font-size: 12px;
+  color: #888;
+}
+
 .locker_text {
   display: flex;
   align-items: center;
@@ -175,7 +241,7 @@ body {
   border-radius: 10px;
   cursor: pointer;
   position: absolute;
-  bottom: 50px;
+  bottom: 1px;
 }
 
 .logout__content {
