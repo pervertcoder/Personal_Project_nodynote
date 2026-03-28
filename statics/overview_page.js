@@ -745,10 +745,11 @@ const renderNotification = function (data) {
   const count = document.getElementById("noti-count");
 
   container.innerHTML = "";
-
+  const notifTime = new Date(n.created_at);
+  notifTime.setHours(notifTime.getHours() + 8);
   const unreadCount = data.filter((n) => {
     const lastRead = getLastReadTime();
-    return !lastRead || new Date(n.created_at) > new Date(lastRead);
+    return !lastRead || notifTime > new Date(lastRead);
   }).length;
   if (unreadCount > 0) {
     count.classList.remove("hidden"); // 顯示紅點
