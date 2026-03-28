@@ -215,6 +215,7 @@ def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(
         user = User(user_email)
         check_data = user.get_user_data()
         user_id = check_data[0][0]
+        user_name = check_data[0][1]
         role = check_role(note_id, user_id)
 
         share_user_id = check_shared_user(request.email)
@@ -225,7 +226,7 @@ def share_note (note_id, request:sharedNoteRequest, access_token : str = Cookie(
             result = add_permission(note_id, share_user_id, shared_role)
             if result:
                 # 新增通知
-                message = f"使用者{user_id}分享一個筆記給你"
+                message = f"{user_name}分享一個筆記給你"
                 insert_notification(share_user_id, note_id, message)
                 return sharedNoteResponse(ok=True)
             else:
