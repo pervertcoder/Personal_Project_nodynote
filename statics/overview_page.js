@@ -730,6 +730,7 @@ const fetchNotification = async function () {
 const formateTime = function (timeStr) {
   const now = new Date();
   const time = new Date(timeStr);
+  time.setHours(time.getHours() + 8);
   const diff = Math.floor((now - time) / 1000);
 
   if (diff < 60) return "剛剛";
