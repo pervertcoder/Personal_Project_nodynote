@@ -745,10 +745,10 @@ const renderNotification = function (data) {
   const count = document.getElementById("noti-count");
 
   container.innerHTML = "";
-  const notifTime = new Date(n.created_at);
-  notifTime.setHours(notifTime.getHours() + 8);
   const unreadCount = data.filter((n) => {
     const lastRead = getLastReadTime();
+    const notifTime = new Date(n.created_at);
+    notifTime.setHours(notifTime.getHours() + 8);
     return !lastRead || notifTime > new Date(lastRead);
   }).length;
   if (unreadCount > 0) {
