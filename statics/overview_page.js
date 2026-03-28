@@ -697,7 +697,6 @@ onlyReadNote.addEventListener("click", async () => {
 const logout = document.getElementById("logout");
 logout.addEventListener("click", async (e) => {
   e.stopPropagation();
-  window.location.href = "/login&regist";
   const url = "/api/auth/logout";
   const request = await fetch(url, {
     method: "POST",
@@ -705,6 +704,8 @@ logout.addEventListener("click", async (e) => {
   });
 
   const response = await request.json();
+
+  window.location.href = "/login&regist";
 });
 
 const getLastReadTime = function () {
