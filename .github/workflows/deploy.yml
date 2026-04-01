@@ -31,6 +31,6 @@ jobs:
             sudo docker rm nodynote || true
 
             echo "Run new container..."
-            sudo docker run -d --name nodynote -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/nodynote:latest
+            sudo docker run -d --name nodynote -p 8000:8000 --env-file /home/ubuntu/Personal_Project_nodynote/.env ${{ secrets.DOCKER_USERNAME }}/nodynote:latest
 
-# fix permission on EC2 command
+# fix db connection on EC2
