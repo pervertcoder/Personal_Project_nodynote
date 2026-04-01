@@ -24,13 +24,13 @@ jobs:
           port: 22
           script: |
             echo "Pull latest Docker image..."
-            docker pull ${{ secrets.DOCKER_USERNAME }}/nodynote:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/nodynote:latest
 
             echo "Stop old container if exists..."
-            docker stop nodynote || true
-            docker rm nodynote || true
+            sudo docker stop nodynote || true
+            sudo docker rm nodynote || true
 
             echo "Run new container..."
-            docker run -d --name nodynote -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/nodynote:latest
+            sudo docker run -d --name nodynote -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/nodynote:latest
 
-# fix public key on EC2
+# fix permission on EC2 command
