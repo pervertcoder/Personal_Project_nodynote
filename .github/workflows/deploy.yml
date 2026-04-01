@@ -33,4 +33,4 @@ jobs:
             echo "Run new container..."
             sudo docker run -d --name nodynote -p 8000:8000 --env-file /home/ubuntu/Personal_Project_nodynote/.env ${{ secrets.DOCKER_USERNAME }}/nodynote:latest
 
-# fix db connection on EC2
+# fix db connection on EC2 2.0
