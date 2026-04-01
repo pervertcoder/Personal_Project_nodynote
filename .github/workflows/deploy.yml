@@ -33,4 +33,4 @@ jobs:
             echo "Run new container..."
             docker run -d --name nodynote -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/nodynote:latest
 
-# fix secret EC2_USER
+# fix secret EC2_USER ON github
