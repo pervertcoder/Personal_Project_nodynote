@@ -23,6 +23,11 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY}}
           port: 22
           script: |
+            echo "Go to project folder and pull latest code..."
+            cd /home/ubuntu/Personal_Project_nodynote
+            git checkout main
+            git pull origin main
+
             echo "Pull latest Docker image..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/nodynote:latest
 
