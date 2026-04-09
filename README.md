@@ -1,6 +1,54 @@
-# [Nodynote](https://nodynote.com/)
+# Nodynote
+
+[https://nodynote.com/](https://nodynote.com/)
 
 *Nodynote*為一套以 FastAPI 開發的後端系統，主要處理多人共用筆記情境下的使用者驗證、權限控管、資料一致性與狀態持久化問題。系統重點不在單純功能實作，而是針對多人同時操作同一份資料時，如何在後端維持資料正確性與系統穩定性。
+
+## 使用DEMO
+
+可以先選擇測試帳號 (有下拉式選單可以選擇並直接代入)
+
+測試帳號1
+
+帳號：test1@test.com
+
+密碼：123
+
+測試帳號2
+
+帳號：test2@test.com
+
+密碼：456
+
+測試帳號3
+
+帳號：test3@test.com
+
+密碼：789
+
+測試帳號4
+
+帳號：test4@test.com
+
+密碼：147
+
+測試帳號5
+
+帳號：ply@ply.com
+
+密碼：ply
+
+---
+
+共同編輯demo
+
+![permissions demo](statics/demo_video/cowork_demo_small.gif)
+
+---
+
+權限設置demo
+
+![permissions demo](statics/demo_video/permission_demo_small.gif)
 
 ## 專案說明
 
@@ -110,15 +158,3 @@
 - 設計 server-side 衝突檢測機制處理多人更新
 - 建立記憶體狀態 + 定期持久化策略降低資料庫負擔
 - 拆分 REST API 與 WebSocket 職責以應對不同操作場景
-
-## 使用DEMO
-
-可以先選擇測試帳號 (有下拉式選單可以選擇並直接代入)
-
-測試帳號1：test1@test.com/123
-
-測試帳號2：test2@test.com/456
-
-![permissions demo](statics/demo_video/cowork_demo_small.gif)
-
-![permissions demo](statics/demo_video/permission_demo_small.gif)

@@ -78,8 +78,8 @@ loginBtn.addEventListener("click", async () => {
     window.location.href = "/overview";
   } else {
     errorLogin.classList.remove("error--off");
-    errorMessageLogin.textContent = "X:帳號密碼錯誤";
-    console.log("帳號密碼錯誤");
+    errorMessageLogin.textContent = `X:${response.message}`;
+    console.log(response.message);
   }
 });
 
@@ -87,6 +87,8 @@ const testSuffix = "@test.com";
 const accounts = {
   tester1: { email: `test1${testSuffix}`, password: "123" },
   tester2: { email: `test2${testSuffix}`, password: "456" },
+  tester3: { email: `test3${testSuffix}`, password: "789" },
+  tester4: { email: `test4${testSuffix}`, password: "147" },
   ply: { email: "ply@ply.com", password: "ply" },
 };
 
