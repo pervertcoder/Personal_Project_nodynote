@@ -45,7 +45,7 @@ const startCountdown = async function (ms) {
 
       // 呼叫登出 API
       try {
-        await fetch("/api/sessions", {
+        await fetch("/api/sessions/", {
           method: "DELETE",
           credentials: "include",
         });

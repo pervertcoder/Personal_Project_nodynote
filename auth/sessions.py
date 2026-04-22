@@ -30,7 +30,7 @@ def login(request:loginRequest, response:Response):
                 key="access_token",
                 value=token,
                 httponly=True,
-                secure=False,
+                secure=True,
                 samesite="lax"
             )
             return loginResponse(ok=True, user_id=user_id)
