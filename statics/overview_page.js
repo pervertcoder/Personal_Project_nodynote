@@ -697,7 +697,7 @@ onlyReadNote.addEventListener("click", async () => {
 const logout = document.getElementById("logout");
 logout.addEventListener("click", async (e) => {
   e.stopPropagation();
-  const url = "/api/sessions";
+  const url = "/api/sessions/";
   const request = await fetch(url, {
     method: "DELETE",
     credentials: "include",
