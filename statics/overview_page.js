@@ -10,7 +10,7 @@ let tokenCheckInterval = null;
 let countdownTimer = null;
 
 const checkToken = async function () {
-  const url = "/api/auth/check_token";
+  const url = "/api/sessions/validate";
   try {
     const request = await fetch(url);
     const response = await request.json();
@@ -45,8 +45,8 @@ const startCountdown = async function (ms) {
 
       // 呼叫登出 API
       try {
-        await fetch("/api/auth/logout", {
-          method: "POST",
+        await fetch("/api/sessions", {
+          method: "DELETE",
           credentials: "include",
         });
       } catch (err) {
@@ -71,7 +71,7 @@ const userCircle = document.querySelector(".userCircle");
 const colorPicker = document.getElementById("color__picker");
 // const userId = window.location.pathname.slice(11);
 const checkState = async function () {
-  const url = "/api/auth/login";
+  const url = "/api/users/me";
   const request = await fetch(url, {
     method: "GET",
     credentials: "include",
@@ -112,9 +112,9 @@ const updateColor = async function (email, color) {
     user_email: email,
     color: color,
   };
-  const url = "/api/auth/color";
+  const url = "/api/users/me";
   const request = await fetch(url, {
-    method: "POST",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
@@ -697,9 +697,9 @@ onlyReadNote.addEventListener("click", async () => {
 const logout = document.getElementById("logout");
 logout.addEventListener("click", async (e) => {
   e.stopPropagation();
-  const url = "/api/auth/logout";
+  const url = "/api/sessions";
   const request = await fetch(url, {
-    method: "POST",
+    method: "DELETE",
     credentials: "include",
   });
 

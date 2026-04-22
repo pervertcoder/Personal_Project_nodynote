@@ -23,7 +23,7 @@ registBtn.addEventListener("click", async () => {
     password: password,
   };
 
-  const url = "/api/auth/regist";
+  const url = "/api/users";
   const request = await fetch(url, {
     method: "POST",
     headers: {
@@ -60,9 +60,9 @@ loginBtn.addEventListener("click", async () => {
     password: password,
   };
 
-  const url = "/api/auth/authen";
+  const url = "/api/sessions";
   const request = await fetch(url, {
-    method: "PUT",
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
