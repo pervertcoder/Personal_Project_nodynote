@@ -103,15 +103,17 @@
 
 ## 技術使用
 
-- **FastAPI**：後端網頁框架，快速建立RESTful API
+- **FastAPI**：後端框架，負責 REST API 與 WebSocket 服務
 
-- **Websocket**：支援共同編輯即時同步
+- **WebSocket**：實作多人即時協作與資料同步
 
-- **Docker**：容器化部署，方便跨環境運行
+- **MySQL**：資料儲存與關聯設計
 
-- **Nginx**：反向代理、HTTPS和靜態檔案運行
+- **JWT**：使用者身份驗證與 API 授權機制
 
-- **Certbot**：自動SSL續期、確保安全連線
+- **Docker**：容器化部署，確保環境一致性
+
+- **Nginx**：反向代理與 HTTPS 處理
 
 ## 系統功能
 

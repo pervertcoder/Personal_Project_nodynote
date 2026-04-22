@@ -19,7 +19,7 @@ const id = window.location.pathname.slice(6);
 const icon = document.querySelector(".share_icon_outlayer");
 const restrict = document.querySelector(".restrict");
 const checkState = async function () {
-  const url = `/api/note/note_content_render/${id}`;
+  const url = `/api/notes/${id}`;
   const request = await fetch(url, {
     method: "GET",
     credentials: "include",
@@ -115,7 +115,7 @@ const saveFile = async function () {
     name: note_name,
     content: note_content,
   };
-  const url = `/api/note/note_update/${id}`;
+  const url = `/api/notes/${id}`;
   const request = await fetch(url, {
     method: "PUT",
     headers: {

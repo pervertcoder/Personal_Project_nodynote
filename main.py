@@ -2,12 +2,14 @@ from fastapi import FastAPI, WebSocket, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from auth.auth import router as auth_router
+from auth.sessions import router as sessions_router
 from note.note import router as note_router
 from websocket.websocket import websocket_router
 
 app = FastAPI()
 
 app.include_router(auth_router)
+app.include_router(sessions_router)
 app.include_router(note_router)
 app.include_router(websocket_router)
 

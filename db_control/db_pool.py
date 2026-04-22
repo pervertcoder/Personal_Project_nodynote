@@ -5,10 +5,10 @@ pool = pooling.MySQLConnectionPool(
     pool_name="mypool",
     pool_size=30,
     pool_reset_session=True,
-    host = DB_HOST_RDS,
-    user = DB_USER_RDS,
-    password = DB_PASSWORD_RDS,
-    port = DB_PORT_RDS,
+    host = DB_HOST,
+    user = DB_USER,
+    password = DB_PASSWORD,
+    # port = DB_PORT_RDS,
     database="nodynote"
 )
 

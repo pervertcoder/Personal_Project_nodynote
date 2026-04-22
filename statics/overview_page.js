@@ -10,7 +10,7 @@ let tokenCheckInterval = null;
 let countdownTimer = null;
 
 const checkToken = async function () {
-  const url = "/api/auth/check_token";
+  const url = "/api/sessions/validate";
   try {
     const request = await fetch(url);
     const response = await request.json();
@@ -45,8 +45,8 @@ const startCountdown = async function (ms) {
 
       // 呼叫登出 API
       try {
-        await fetch("/api/auth/logout", {
-          method: "POST",
+        await fetch("/api/sessions", {
+          method: "DELETE",
           credentials: "include",
         });
       } catch (err) {
@@ -71,7 +71,7 @@ const userCircle = document.querySelector(".userCircle");
 const colorPicker = document.getElementById("color__picker");
 // const userId = window.location.pathname.slice(11);
 const checkState = async function () {
-  const url = "/api/auth/login";
+  const url = "/api/users/me";
   const request = await fetch(url, {
     method: "GET",
     credentials: "include",
@@ -112,9 +112,9 @@ const updateColor = async function (email, color) {
     user_email: email,
     color: color,
   };
-  const url = "/api/auth/color";
+  const url = "/api/users/me";
   const request = await fetch(url, {
-    method: "POST",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },
@@ -133,7 +133,7 @@ newNote.addEventListener("click", async () => {
     title: "note",
     content: "nodynote",
   };
-  const url = "/api/note/note_add";
+  const url = "/api/notes";
   const request = await fetch(url, {
     method: "POST",
     headers: {
@@ -191,7 +191,7 @@ submit.addEventListener("click", async () => {
       role: role.value,
     };
     // console.log(payload);
-    const url = `/api/note/share_note/${note_id}`;
+    const url = `/api/notes/share_note/${note_id}`;
     const request = await fetch(url, {
       method: "POST",
       headers: {
@@ -488,7 +488,7 @@ const createNote = function (data, role) {
         e.stopPropagation();
       }
       const note_id = data[0];
-      const url = `/api/note/note_delete/${note_id}`;
+      const url = `/api/notes/note_delete/${note_id}`;
       const request = await fetch(url, {
         method: "DELETE",
         credentials: "include",
@@ -562,7 +562,7 @@ const createNote = function (data, role) {
 
 const getNoteDataSelf = async function () {
   const role = "owner";
-  const url = `/api/note/note_data_render/${role}`;
+  const url = `/api/notes/note_data_render/${role}`;
   const request = await fetch(url, {
     method: "GET",
     credentials: "include",
@@ -576,7 +576,7 @@ const getNoteDataSelf = async function () {
 
 const firstRender = async function () {
   const role = "owner";
-  const url = `/api/note/note_data_render/${role}`;
+  const url = `/api/notes/note_data_render/${role}`;
   const request = await fetch(url, {
     method: "GET",
     credentials: "include",
@@ -596,7 +596,7 @@ firstRender();
 
 const getNoteDataShare = async function (role) {
   // const role = "editor";
-  const url = `/api/note/note_data_render/${role}`;
+  const url = `/api/notes/note_data_render/${role}`;
   const request = await fetch(url, {
     method: "GET",
     credentials: "include",
@@ -618,7 +618,7 @@ const getNoteDataShare = async function (role) {
 const getNoteShareAll = async function (user_id) {
   let editorNoteArr = [];
   let viewerNoteArr = [];
-  const url = `/api/note/share_note_render/${user_id}`;
+  const url = `/api/notes/share_note_render/${user_id}`;
   const request = await fetch(url, {
     method: "GET",
     credentials: "include",
@@ -697,9 +697,9 @@ onlyReadNote.addEventListener("click", async () => {
 const logout = document.getElementById("logout");
 logout.addEventListener("click", async (e) => {
   e.stopPropagation();
-  const url = "/api/auth/logout";
+  const url = "/api/sessions";
   const request = await fetch(url, {
-    method: "POST",
+    method: "DELETE",
     credentials: "include",
   });
 
@@ -717,7 +717,7 @@ const markAsRead = function () {
 };
 
 const fetchNotification = async function () {
-  const url = "/api/note/get_notification";
+  const url = "/api/notes/get_notification";
   const request = await fetch(url, {
     method: "GET",
     credentials: "include",

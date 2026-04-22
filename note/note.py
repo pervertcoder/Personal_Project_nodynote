@@ -7,9 +7,9 @@ from env_settings.env import ALGORITHM, SECRET_KEY
 from db_control.db_controller import put_note_name, check_permission, update_note, render_note_data, delete_note, check_role, check_shared_user, add_permission, delete_token_DB, check_if_editor_owner, delete_permissions, share_only_notes, insert_notification, get_notification_DB
 from api_class.api_class import note_addResponse, note_data_request, note_render_request, note_update_request, note_update_response, note_render_data_response, note_delete, sharedNoteRequest, sharedNoteResponse, notificationResponse, notification
 
-router = APIRouter(prefix="/api/note", tags=["note"])
+router = APIRouter(prefix="/api/notes", tags=["notes"])
 
-@router.post("/note_add", response_model=note_addResponse)
+@router.post("/", response_model=note_addResponse)
 def note_add (request:note_data_request, access_token : str = Cookie(None)):
     if not access_token:
         raise HTTPException(status_code=401, detail="未登入")
@@ -41,7 +41,7 @@ def note_add (request:note_data_request, access_token : str = Cookie(None)):
         })
     
 
-@router.get("/note_content_render/{note_id}", response_model=note_render_request)
+@router.get("/{note_id}", response_model=note_render_request)
 def note_content_render (note_id, access_token : str = Cookie(None)):
     if not access_token:
         raise HTTPException(status_code=401, detail="未登入")
@@ -73,7 +73,7 @@ def note_content_render (note_id, access_token : str = Cookie(None)):
 			'message': 'Token 無效，請重新登入'
         })
     
-@router.put("/note_update/{note_id}", response_model=note_update_response)
+@router.put("/{note_id}", response_model=note_update_response)
 def note_update (note_id, request:note_update_request, access_token : str = Cookie(None)):
     if not access_token:
         raise HTTPException(status_code=401, detail="未登入")
